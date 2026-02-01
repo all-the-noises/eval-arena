@@ -16,7 +16,7 @@ raw-data/terminal-bench/1.0/
     └── ...
 ```
 
-## 2.0 Format ([terminal-bench-2-leaderboard](https://huggingface.co/datasets/alexgshaw/terminal-bench-2-leaderboard))
+## 2.0 Format ([terminal-bench-2-leaderboard](https://huggingface.co/datasets/alexgshaw/terminal-bench-2-leaderboard/tree/main/submissions/terminal-bench/2.0))
 ```
 raw-data/terminal-bench/2.0/
 ├── <Agent>__<Model>/
