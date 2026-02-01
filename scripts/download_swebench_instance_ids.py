@@ -5,7 +5,7 @@ Usage:
     python scripts/download_swebench_instance_ids.py <variant>
 
 Available variants:
-    default      - SWE-bench
+    test - SWE-bench
     verified     - SWE-bench Verified
     lite         - SWE-bench Lite
     multimodal   - SWE-bench Multimodal
@@ -29,7 +29,7 @@ from datasets import load_dataset
 
 # Map variant names to HuggingFace dataset names
 VARIANTS = {
-    'default': 'SWE-bench/SWE-bench',
+    'test': 'SWE-bench/SWE-bench',
     'verified': 'SWE-bench/SWE-bench_Verified',
     'lite': 'SWE-bench/SWE-bench_Lite',
     'multimodal': 'SWE-bench/SWE-bench_Multimodal',
@@ -65,12 +65,12 @@ def download_instance_ids(variant):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python scripts/download_swebench_instance_ids.py <variant>")
-        print(f"Available variants: {', '.join(VARIANTS.keys())}")
-        sys.exit(1)
-
-    variant = sys.argv[1].lower()
-    download_instance_ids(variant)
+        print("No variant provided; downloading instance IDs for all variants...")
+        for variant in VARIANTS.keys():
+            download_instance_ids(variant)
+    else:
+        variant = sys.argv[1].lower()
+        download_instance_ids(variant)
 
 
 if __name__ == '__main__':
