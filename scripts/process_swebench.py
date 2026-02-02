@@ -45,8 +45,10 @@ import yaml
 BASE_PATH = "raw-data/swebench-experiments/evaluation"
 
 
-def get_model_name(swetype, dir_name):
-    """Extract model name from metadata.yaml, fallback to folder name."""
+def get_model_name_metadata(swetype, dir_name):
+    """Extract model name from metadata.yaml
+    Unfortunately this has has dups, so currently not using
+    """
     metadata_path = f"{BASE_PATH}/{swetype}/{dir_name}/metadata.yaml"
     try:
         with open(metadata_path, 'r') as f:
@@ -55,6 +57,10 @@ def get_model_name(swetype, dir_name):
             return metadata['info']['name']
     except (FileNotFoundError, yaml.YAMLError):
         pass
+    return dir_name
+
+
+def get_model_name(swetype, dir_name):
     return dir_name
 
 
@@ -120,7 +126,6 @@ def process_swe(swetype, id_path):
 
 
 SUPPORTED_VARIANTS = ['lite', 'verified', 'test', 'multimodal']
-
 
 if __name__ == '__main__':
     import sys
