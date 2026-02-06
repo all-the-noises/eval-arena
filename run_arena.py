@@ -1,5 +1,5 @@
 import logging
-import os
+import pickle
 from pathlib import Path
 
 from omegaconf import OmegaConf
@@ -7,31 +7,12 @@ import pandas as pd
 
 import arena
 from arena import ReportArgs
-from reports import (
-    write_example_report,
-    write_model_report,
-    write_data_tables,
-    write_summary_table,
-    write_sections_index,
-    write_directory_index,
-)
+from render_reports import setup_output, render_reports
 from signal_noise import signal_to_noise
 from utils import load_jsonl_files, check_data, fill_count, check_and_fill_correct
 
 logger = logging.getLogger(__name__)
 
-
-def setup_output(args: ReportArgs):
-    # Copy custom.css to the output directory
-    os.makedirs(Path(args.out_dir) / "static" / "css" , exist_ok=True)
-    with open(Path("templates/custom.css"), "rb") as src_file, open(Path(args.out_dir) / "static" / "css" / "custom.css", "wb") as dst_file:
-        dst_file.write(src_file.read())
-    
-    with open(Path("templates/bulma.min.css"), "rb") as src_file, open(Path(args.out_dir) / "static" / "css" / "bulma.min.css", "wb") as dst_file:
-        dst_file.write(src_file.read())
-    
-    tmp_dir = Path(args.out_dir) / "tmp"
-    os.makedirs(tmp_dir, exist_ok=True)
 
 def run_arena(args: ReportArgs):
     records = load_jsonl_files(args.data)
@@ -58,23 +39,10 @@ def run_arena(args: ReportArgs):
 
             logger.info(f"Summary stats for {bid}:\n{pd.DataFrame([summary_stats])}")
             pd.DataFrame([summary_stats]).to_json(tmp_dir / f"summary-{bid}.jsonl", orient="records", lines=True)
+            with open(tmp_dir / f"{bid}.pkl", "wb") as f:
+                pickle.dump(arena_res, f)
 
-            benchmark_out_dir = Path(args.out_dir) / bid
-            os.makedirs(benchmark_out_dir, exist_ok=True)
-            
-            write_model_report(bid, arena_res, benchmark_out_dir)
-            write_example_report(bid, arena_res, benchmark_out_dir)
-            write_data_tables(arena_res, benchmark_out_dir)
-            write_directory_index(bid, benchmark_out_dir)
-
-    if args.write_summary:
-        records = load_jsonl_files(f"{tmp_dir}/summary-*.jsonl")
-        logger.info(f"Loaded {len(records)} summary records")
-        df_summary = pd.DataFrame(records)
-        df_summary.to_csv(Path(args.out_dir) / "summary.csv")
-        write_summary_table(pd.DataFrame(df_summary), Path(args.out_dir) / "index.html", include_var_components=args.include_var_components)
-
-    write_sections_index(Path(args.out_dir))
+    render_reports(args)
 
 
 if __name__ == "__main__":
