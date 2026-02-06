@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-python scripts/process_swebench_bash_only.py
-
 Process SWE-bench Bash-Only evaluation results into standardized format.
+
+Usage:
+    python scripts/data/process_swebench_bash_only.py
 
 Raw data source: [SWE-bench/experiments](https://github.com/SWE-bench/experiments/tree/main/evaluation/bash-only)
 

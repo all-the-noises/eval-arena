@@ -1,6 +1,9 @@
 import logging
 import os
+import sys
 from pathlib import Path
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts", "eval-arena"))
 
 from omegaconf import OmegaConf
 import pandas as pd

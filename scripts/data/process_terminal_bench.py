@@ -2,6 +2,9 @@
 """
 Process Terminal Bench evaluation results into standardized format.
 
+Usage:
+    python scripts/data/process_terminal_bench.py
+
 Supports both Terminal Bench 1.0 and 2.0 data formats.
 
 ## 1.0 Format ([terminal-bench-core@0.1.1](https://github.com/laude-institute/terminal-bench-leaderboard/tree/main/results/terminal-bench-core%400.1.1))

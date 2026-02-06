@@ -2,7 +2,7 @@
 Download SWE-bench instance IDs (test split) from HuggingFace Datasets.
 
 Usage:
-    python scripts/download_swebench_instance_ids.py <variant>
+    python scripts/data/download_swebench_instance_ids.py <variant>
 
 Available variants:
     test - SWE-bench
@@ -12,7 +12,7 @@ Available variants:
     multilingual - SWE-bench Multilingual
 
 Examples:
-    python scripts/download_swebench_instance_ids.py multimodal
+    python scripts/data/download_swebench_instance_ids.py multimodal
 
 Requires: pip install datasets
 

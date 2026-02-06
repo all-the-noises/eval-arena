@@ -3,12 +3,12 @@
 Convert SWE-bench raw evaluation data into the standardized format used by eval-arena.
 
 Usage:
-    python scripts/process_swebench.py [<variant> ...]
+    python scripts/data/process_swebench.py [<variant> ...]
 
 Examples:
-    python scripts/process_swebench.py              # run all variants
-    python scripts/process_swebench.py lite         # run only lite
-    python scripts/process_swebench.py lite verified # run lite and verified
+    python scripts/data/process_swebench.py              # run all variants
+    python scripts/data/process_swebench.py lite         # run only lite
+    python scripts/data/process_swebench.py lite verified # run lite and verified
 
 Raw data source: [SWE-bench/experiments](https://github.com/SWE-bench/experiments/tree/main/evaluation/
 The script expects raw data in this directory structure:
