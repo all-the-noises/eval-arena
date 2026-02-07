@@ -53,11 +53,13 @@ def render_reports(args: ReportArgs):
         write_data_tables(arena_res, benchmark_out_dir)
         write_directory_index(bid, benchmark_out_dir)
 
-    records = load_jsonl_files(f"{tmp_dir}/summary-*.jsonl")
-    logger.info(f"Loaded {len(records)} summary records")
-    df_summary = pd.DataFrame(records)
-    df_summary.to_csv(Path(args.out_dir) / "summary.csv")
-    write_summary_table(df_summary, Path(args.out_dir) / "index.html", include_var_components=args.include_var_components)
+    if args.write_summary:
+        records = load_jsonl_files(f"{tmp_dir}/summary-*.jsonl")
+        logger.info(f"Loaded {len(records)} summary records")
+        df_summary = pd.DataFrame(records)
+        df_summary.to_csv(Path(args.out_dir) / "summary.csv")
+        write_summary_table(df_summary, Path(args.out_dir) / "index.html", include_var_components=args.include_var_components)
+        
     write_sections_index(Path(args.out_dir))
 
 
