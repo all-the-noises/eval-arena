@@ -4,7 +4,7 @@ Re-render HTML reports from pre-computed results (pickle files in out_dir/tmp/).
 Run run_arena.py first to compute stats, then use this to iterate on presentation.
 
 Standalone usage: 
-    python render_reports.py --out_dir gh-pages/ [--no-write_summary] [--no-include_var_components]
+    python render_reports.py [--out_dir ${OUTPATH}] [--no-write_summary] [--no-include_var_components]
 """
 
 import logging
