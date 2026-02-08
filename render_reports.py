@@ -1,12 +1,17 @@
-# Re-render HTML reports from pre-computed results (pickle files in out_dir/tmp/).
-# Run run_arena.py first to compute stats, then use this to iterate on presentation.
+"""
+Re-render HTML reports from pre-computed results (pickle files in out_dir/tmp/).
+
+Run run_arena.py first to compute stats, then use this to iterate on presentation.
+
+Standalone usage: 
+    python render_reports.py --out_dir gh-pages/ [--no-write_summary] [--no-include_var_components]
+"""
 
 import logging
 import os
 import pickle
 from pathlib import Path
 
-from omegaconf import OmegaConf
 import pandas as pd
 
 from arena import ReportArgs
@@ -64,11 +69,16 @@ def render_reports(args: ReportArgs):
 
 
 if __name__ == "__main__":
+    import argparse
+
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    cli_args = OmegaConf.from_cli()
-    default_cfg = OmegaConf.structured(ReportArgs())
-    args = OmegaConf.merge(default_cfg, cli_args)
-    args = OmegaConf.to_object(args)
+    parser = argparse.ArgumentParser(description="Re-render HTML reports from pre-computed results.")
+    parser.add_argument("--out_dir", type=str, default="gh-pages/", help="Output directory")
+    parser.add_argument("--write_summary", action=argparse.BooleanOptionalAction, default=True, help="Generate summary table")
+    parser.add_argument("--include_var_components", action=argparse.BooleanOptionalAction, default=True, help="Include variance components in summary")
+    cli_args = parser.parse_args()
+
+    args = ReportArgs(out_dir=cli_args.out_dir, write_summary=cli_args.write_summary, include_var_components=cli_args.include_var_components)
     logger.info(f"Rendering with args: {args}")
     setup_output(args)
     render_reports(args)
