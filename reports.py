@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from pathlib import Path
@@ -136,8 +137,28 @@ def write_data_tables(ares: ArenaResult, OUTPUT_PATH):
     os.makedirs(data_path, exist_ok=True)
     ares.input_table.to_csv(data_path / "input.csv", index=True)
     ares.model_table.to_csv(data_path / "model.csv")
-    ares.example_table.to_csv(data_path / "example.csv")
+    # Serialize the "models" column (numpy arrays) as JSON lists for CSV round-tripping
+    example_table = ares.example_table.copy()
+    example_table["models"] = example_table["models"].apply(lambda x: json.dumps(x.tolist()))
+    example_table.to_csv(data_path / "example.csv")
     ares.summary.to_csv(data_path / "summary.csv")
+
+
+def load_data_tables(benchmark_out_dir) -> ArenaResult:
+    """Load ArenaResult from CSVs written by write_data_tables."""
+    data_path = Path(benchmark_out_dir) / "tables"
+    input_table = pd.read_csv(data_path / "input.csv", index_col=0)
+    model_table = pd.read_csv(data_path / "model.csv")
+    example_table = pd.read_csv(data_path / "example.csv")
+    example_table["models"] = example_table["models"].apply(json.loads)
+    summary = pd.read_csv(data_path / "summary.csv")
+    return ArenaResult(
+        summary=summary,
+        model_table=model_table,
+        example_table=example_table,
+        input_table=input_table,
+        summary_stats={},
+    )
 
 
 def write_directory_index(benchmark_id: str, OUTPUT_PATH):

@@ -1,5 +1,5 @@
 import logging
-import pickle
+import os
 from pathlib import Path
 
 from omegaconf import OmegaConf
@@ -7,11 +7,59 @@ import pandas as pd
 
 import arena
 from arena import ReportArgs
-from render_reports import setup_output, render_reports
+from reports import (
+    load_data_tables,
+    write_data_tables,
+    write_example_report,
+    write_model_report,
+    write_summary_table,
+    write_sections_index,
+    write_directory_index,
+)
 from signal_noise import signal_to_noise
 from utils import load_jsonl_files, check_data, fill_count, check_and_fill_correct
 
 logger = logging.getLogger(__name__)
+
+
+def setup_output(args: ReportArgs):
+    os.makedirs(Path(args.out_dir) / "static" / "css", exist_ok=True)
+    with open(Path("templates/custom.css"), "rb") as src_file, open(Path(args.out_dir) / "static" / "css" / "custom.css", "wb") as dst_file:
+        dst_file.write(src_file.read())
+    with open(Path("templates/bulma.min.css"), "rb") as src_file, open(Path(args.out_dir) / "static" / "css" / "bulma.min.css", "wb") as dst_file:
+        dst_file.write(src_file.read())
+    os.makedirs(Path(args.out_dir) / "tmp", exist_ok=True)
+
+
+def render_reports(args: ReportArgs, results: dict[str, arena.ArenaResult] | None = None):
+    out_dir = Path(args.out_dir)
+
+    if not results:
+        benchmark_dirs = [
+            d for d in out_dir.iterdir()
+            if d.is_dir() and (d / "tables" / "input.csv").exists()
+        ]
+        if not benchmark_dirs:
+            logger.error(f"No benchmark data found in {out_dir}. Run with recompute=True first.")
+            return
+        results = {d.name: load_data_tables(d) for d in benchmark_dirs}
+
+    for bid, arena_res in results.items():
+        benchmark_out_dir = out_dir / bid
+        logger.info(f"Rendering reports for {bid}...")
+        write_model_report(bid, arena_res, benchmark_out_dir)
+        write_example_report(bid, arena_res, benchmark_out_dir)
+        write_directory_index(bid, benchmark_out_dir)
+
+    if args.write_summary:
+        tmp_dir = out_dir / "tmp"
+        records = load_jsonl_files(f"{tmp_dir}/summary-*.jsonl")
+        logger.info(f"Loaded {len(records)} summary records")
+        df_summary = pd.DataFrame(records)
+        df_summary.to_csv(Path(args.out_dir) / "summary.csv")
+        write_summary_table(df_summary, Path(args.out_dir) / "index.html", include_var_components=args.include_var_components)
+
+    write_sections_index(Path(args.out_dir))
 
 
 def run_arena(args: ReportArgs):
@@ -27,6 +75,7 @@ def run_arena(args: ReportArgs):
     logger.info(f"Included models: {set(eval_results['model'])}")
     tmp_dir = Path(args.out_dir) / "tmp"
 
+    results = {}
     if args.recompute:
         for bid in benchmarks:
             logger.info(f"Processing {bid}...")
@@ -39,10 +88,14 @@ def run_arena(args: ReportArgs):
 
             logger.info(f"Summary stats for {bid}:\n{pd.DataFrame([summary_stats])}")
             pd.DataFrame([summary_stats]).to_json(tmp_dir / f"summary-{bid}.jsonl", orient="records", lines=True)
-            with open(tmp_dir / f"{bid}.pkl", "wb") as f:
-                pickle.dump(arena_res, f)
 
-    render_reports(args)
+            benchmark_out_dir = Path(args.out_dir) / bid
+            os.makedirs(benchmark_out_dir, exist_ok=True)
+
+            write_data_tables(arena_res, benchmark_out_dir)
+            results[bid] = arena_res
+
+    render_reports(args, results or None)
 
 
 if __name__ == "__main__":
