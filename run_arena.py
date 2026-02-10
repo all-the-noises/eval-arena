@@ -23,12 +23,16 @@ logger = logging.getLogger(__name__)
 
 
 def setup_output(args: ReportArgs):
-    os.makedirs(Path(args.out_dir) / "static" / "css", exist_ok=True)
+    # Copy custom.css to the output directory
+    os.makedirs(Path(args.out_dir) / "static" / "css" , exist_ok=True)
     with open(Path("templates/custom.css"), "rb") as src_file, open(Path(args.out_dir) / "static" / "css" / "custom.css", "wb") as dst_file:
         dst_file.write(src_file.read())
+    
     with open(Path("templates/bulma.min.css"), "rb") as src_file, open(Path(args.out_dir) / "static" / "css" / "bulma.min.css", "wb") as dst_file:
         dst_file.write(src_file.read())
-    os.makedirs(Path(args.out_dir) / "tmp", exist_ok=True)
+    
+    tmp_dir = Path(args.out_dir) / "tmp"
+    os.makedirs(tmp_dir, exist_ok=True)
 
 
 def render_reports(args: ReportArgs, results: dict[str, arena.ArenaResult] | None = None):
