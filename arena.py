@@ -12,10 +12,15 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ArenaResult:
+    """each row is a model pair"""
     summary: pd.DataFrame
+    """table where each row is a model"""
     model_table: pd.DataFrame
+    """table where each row is an example/question"""
     example_table: pd.DataFrame
+    """table where each row is (example, model)"""
     input_table: pd.DataFrame
+    """short stats of the summary for the final table"""
     summary_stats: dict
 
 
