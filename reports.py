@@ -131,9 +131,13 @@ def write_figures(sections: dict, OUTPUT_PATH):
             output_file.write(section_content)
 
 
-def write_data_tables(ares: ArenaResult, OUTPUT_PATH):
-    """Write data tables (CSVs) to the tables directory."""
-    data_path = Path(OUTPUT_PATH) / "tables"
+def write_data(bid: str, ares: ArenaResult, out_dir: str):
+    """Write all ArenaResult data for a benchmark."""
+    benchmark_out_dir = Path(out_dir) / bid
+    os.makedirs(benchmark_out_dir, exist_ok=True)
+
+    # Write data tables
+    data_path = benchmark_out_dir / "tables"
     os.makedirs(data_path, exist_ok=True)
     ares.input_table.to_csv(data_path / "input.csv", index=True)
     ares.model_table.to_csv(data_path / "model.csv")
@@ -143,22 +147,40 @@ def write_data_tables(ares: ArenaResult, OUTPUT_PATH):
     example_table.to_csv(data_path / "example.csv")
     ares.summary.to_csv(data_path / "summary.csv")
 
+    # Write summary stats
+    logger.info(f"Summary stats for {bid}:\n{pd.DataFrame([ares.summary_stats])}")
+    tmp_dir = Path(out_dir) / "tmp"
+    pd.DataFrame([ares.summary_stats]).to_json(tmp_dir / f"summary-{bid}.jsonl", orient="records", lines=True)
 
-def load_data_tables(benchmark_out_dir) -> ArenaResult:
-    """Load ArenaResult from CSVs written by write_data_tables."""
-    data_path = Path(benchmark_out_dir) / "tables"
-    input_table = pd.read_csv(data_path / "input.csv", index_col=0)
-    model_table = pd.read_csv(data_path / "model.csv")
-    example_table = pd.read_csv(data_path / "example.csv")
-    example_table["models"] = example_table["models"].apply(json.loads)
-    summary = pd.read_csv(data_path / "summary.csv")
-    return ArenaResult(
-        summary=summary,
-        model_table=model_table,
-        example_table=example_table,
-        input_table=input_table,
-        summary_stats={},
-    )
+
+def load_data(out_dir) -> dict[str, ArenaResult] | None:
+    """Load all ArenaResults from out_dir. Returns None if no data found."""
+    out_dir = Path(out_dir)
+    benchmark_dirs = [
+        d for d in out_dir.iterdir()
+        if d.is_dir() and (d / "tables" / "summary.csv").exists()
+    ]
+    if not benchmark_dirs:
+        return None
+
+    results = {}
+    for d in benchmark_dirs:
+        bid = d.name
+        data_path = d / "tables"
+        input_table = pd.read_csv(data_path / "input.csv", index_col=0)
+        model_table = pd.read_csv(data_path / "model.csv")
+        example_table = pd.read_csv(data_path / "example.csv")
+        example_table["models"] = example_table["models"].apply(json.loads)
+        summary = pd.read_csv(data_path / "summary.csv")
+        summary_stats = pd.read_json(out_dir / "tmp" / f"summary-{bid}.jsonl", orient="records", lines=True).iloc[0].to_dict()
+        results[bid] = ArenaResult(
+            summary=summary,
+            model_table=model_table,
+            example_table=example_table,
+            input_table=input_table,
+            summary_stats=summary_stats,
+        )
+    return results
 
 
 def write_directory_index(benchmark_id: str, OUTPUT_PATH):

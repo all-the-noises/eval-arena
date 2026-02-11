@@ -29,7 +29,6 @@ class ReportArgs:
     out_dir: str = "gh-pages/"
     data: str = "data/*.jsonl"
     recompute: bool = True # generate results for all data and summary 
-    write_summary: bool = True # use results in out_dir/tmp to generate the summary table
     
     max_diff: float = 0.1 # skip models that are more than max_diff in performance
     sigma_thres: float = 5.0 # how many std to consider as not close
