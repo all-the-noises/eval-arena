@@ -149,8 +149,7 @@ def write_data(bid: str, ares: ArenaResult, out_dir: str):
 
     # Write summary stats
     logger.info(f"Summary stats for {bid}:\n{pd.DataFrame([ares.summary_stats])}")
-    tmp_dir = Path(out_dir) / "tmp"
-    pd.DataFrame([ares.summary_stats]).to_json(tmp_dir / f"summary-{bid}.jsonl", orient="records", lines=True)
+    pd.DataFrame([ares.summary_stats]).to_json(data_path / f"summary-{bid}.jsonl", orient="records", lines=True)
 
 
 def load_data(out_dir) -> dict[str, ArenaResult] | None:
@@ -172,7 +171,7 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
         example_table = pd.read_csv(data_path / "example.csv")
         example_table["models"] = example_table["models"].apply(json.loads)
         summary = pd.read_csv(data_path / "summary.csv")
-        summary_stats = pd.read_json(out_dir / "tmp" / f"summary-{bid}.jsonl", orient="records", lines=True).iloc[0].to_dict()
+        summary_stats = pd.read_json(data_path / f"summary-{bid}.jsonl", orient="records", lines=True).iloc[0].to_dict()
         results[bid] = ArenaResult(
             summary=summary,
             model_table=model_table,
