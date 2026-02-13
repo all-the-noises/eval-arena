@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 from pathlib import Path
@@ -136,18 +135,12 @@ def write_data(bid: str, ares: ArenaResult, out_dir: str):
     benchmark_out_dir = Path(out_dir) / bid
     os.makedirs(benchmark_out_dir, exist_ok=True)
 
-    # Write data tables
     data_path = benchmark_out_dir / "tables"
     os.makedirs(data_path, exist_ok=True)
-    ares.input_table.to_csv(data_path / "input.csv", index=True)
-    ares.model_table.to_csv(data_path / "model.csv")
-    # Serialize the "models" column (numpy arrays) as JSON lists for CSV round-tripping
-    example_table = ares.example_table.copy()
-    example_table["models"] = example_table["models"].apply(lambda x: json.dumps(x.tolist()))
-    example_table.to_csv(data_path / "example.csv")
-    ares.summary.to_csv(data_path / "summary.csv")
-
-    # Write summary stats
+    ares.input_table.to_json(data_path / "input.jsonl", orient="records", lines=True)
+    ares.model_table.to_json(data_path / "model.jsonl", orient="records", lines=True)
+    ares.example_table.to_json(data_path / "example.jsonl", orient="records", lines=True)
+    ares.summary.to_json(data_path / "summary.jsonl", orient="records", lines=True)
     logger.info(f"Summary stats for {bid}:\n{pd.DataFrame([ares.summary_stats])}")
     pd.DataFrame([ares.summary_stats]).to_json(data_path / f"summary-{bid}.jsonl", orient="records", lines=True)
 
@@ -157,7 +150,7 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
     out_dir = Path(out_dir)
     benchmark_dirs = [
         d for d in out_dir.iterdir()
-        if d.is_dir() and (d / "tables" / "summary.csv").exists()
+        if d.is_dir() and (d / "tables" / "input.jsonl").exists()
     ]
     if not benchmark_dirs:
         return None
@@ -166,11 +159,10 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
     for d in benchmark_dirs:
         bid = d.name
         data_path = d / "tables"
-        input_table = pd.read_csv(data_path / "input.csv", index_col=0)
-        model_table = pd.read_csv(data_path / "model.csv")
-        example_table = pd.read_csv(data_path / "example.csv")
-        example_table["models"] = example_table["models"].apply(json.loads)
-        summary = pd.read_csv(data_path / "summary.csv")
+        input_table = pd.read_json(data_path / "input.jsonl", orient="records", lines=True)
+        model_table = pd.read_json(data_path / "model.jsonl", orient="records", lines=True)
+        example_table = pd.read_json(data_path / "example.jsonl", orient="records", lines=True)
+        summary = pd.read_json(data_path / "summary.jsonl", orient="records", lines=True)
         summary_stats = pd.read_json(data_path / f"summary-{bid}.jsonl", orient="records", lines=True).iloc[0].to_dict()
         results[bid] = ArenaResult(
             summary=summary,
