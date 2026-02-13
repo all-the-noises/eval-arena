@@ -1,7 +1,12 @@
+from openpyxl.descriptors import Float
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from scipy import stats
+import seaborn as sns
+import matplotlib.pyplot as plt
+import argparse
 
 
 def gaussian_tail_exact(z: np.ndarray) -> np.ndarray:
@@ -22,6 +27,7 @@ def _hoeffding_bound(t: np.ndarray, sigma2: np.ndarray) -> np.ndarray:
     """
     Wainwright (2.10)
     \Pr[\sum_{i=1}^n X_i > t] ≤ \exp(-\frac{t^2}{2\sum_{i=1}^n \sigma_i^2})
+    sigma2 is the subgaussian parameter (not the variance)
     """
     return np.exp(-t**2 / (2*np.sum(sigma2)))
 
@@ -67,91 +73,134 @@ def bennett_bound(z, SE, N, X2, b=1.0) -> np.ndarray:
     h = (1 + u) * np.log(1 + u + 1e-10) - u
     return np.exp(-N * v / (b**2) * h)
 
-def binomaial_exact(t: np.ndarray, N: int, p: float):
+def binomial_exact(t: np.ndarray, N: int, p: float):
     """
     Pr[Binom(N, p) >= t]
     """
-    return 1 - stats.binom.cdf(t - 1, N, p)
+    return 1 - stats.binom.cdf(t, N, p)
+
+def binomial_sample(t: np.ndarray, N: int, p: float, n_samples: int = 1_000_000):
+    """
+    Estimate Pr[Binom(N, p) >= t] by Monte Carlo sampling.
+    """
+    samples = np.random.binomial(N, p, size=n_samples)
+    # shape: (n_samples, 1) >= (len(t),) broadcasts to (n_samples, len(t))
+    return (samples[:, None] >= t[None, :]).mean(axis=0)
 
 
 def _binomial_bound(delta: np.ndarray, N: int, p: float):
     """
     Wainwright Exercise 2.9
-    P[\sum_i X_i <= delta N] ≤ \exp(-N D(delta||p))
+    If Z_i ~ Bernouli(p), iid, for p in (0, 1/2)
+    P[\sum_i Z_i <= delta N] ≤ \exp(-N D(delta||p))
     """
+    assert p > 0 and p < 0.5
     kl = delta * np.log(delta / p) + (1 - delta) * np.log((1 - delta) / (1 - p))
     return np.exp(-N * kl)
 
 def binomial_bound(t: np.ndarray, N: int, p: float):
     """
-    Wainwright Exercise 2.9
-    P[\sum_i X_i >= t] ≤ \exp(-N D((N-t)/N||p))
+    use symmetry to get P[\sum_i Z_i >= t] = P[\sum_i Z'_i <= N - t]
+    
+    where Z'_i ~ Bernouli(1-p)
+    then apply the lowerbound of P[\sum_i Z'_i <= delta N] 
     """
+    assert p > 0.5 and p < 1
     delta = 1 - t / N
-    return _binomial_bound(delta, N, p)
+    return _binomial_bound(delta, N, 1 - p)
 
-def plot_tail_bounds(sigma: float = 0.5, N: int = 30, M: float = 1.0,
-                     z_max: float = 5.0, n_points: int = 500):
+def generate_iid_binomial_tailbounds(N: int, p: Float, z_max: float = 6.0, n_points: int = 10000):
     """
-    Create both regular and log-scale plots of tail bounds.
+    Generate tail bounds data for plotting.
 
     Args:
-        sigma: standard deviation of each RV (max 0.5 for Bernoulli)
         N: number of samples
-        M: bound on |X - μ|
+        p: probability parameter for binomial
         z_max: maximum z-score to plot
         n_points: number of points for plotting
+
+    Returns:
+        tuple: (DataFrame with all bounds, metadata dict with sigma and N)
     """
     z = np.linspace(0.01, z_max, n_points)
 
     # Standard error
-    p = 0.5
     sigma = np.sqrt(p*(1-p))
     SE = sigma / np.sqrt(N)
 
-    # Compute bounds
-    gaussian_exact = gaussian_tail_exact(z)
-    gaussian_chernoff = gaussian_chernoff_bound(z)
-
-    # Hoeffding with sigma^2 = 0.25 (max variance for Bernoulli)
-    hoeffdingz = hoeffding_bound_z(z, SE, N, np.ones(N)*sigma*sigma)
-
-    # Bernstein and Bennett bounds
+    # CLT estimates
     X2 = np.ones(N) * sigma**2  # E[X_i^2] for centered RVs
-    bernstein = bernstein_bound(z, SE, N, X2, b=M)
-    
-    binom = binomaial_exact(z*SE*N + N*p, N, p=p)
+    # Create DataFrame
+    df = pd.DataFrame({
+        'z': z,
+        'Gaussian (CLT)': gaussian_tail_exact(z),
+        'Hoeffding': hoeffding_bound_z(z, SE, N, np.ones(N)*0.25),
+        # center these RVs to get the strongest results from Bernstein and Bennett
+        'Bernstein': bernstein_bound(z, SE, N, X2, b=1-p),
+        # 'Bennett': bennett_bound(z, SE, N, X2, b=1-p),
+        # 'Binom bound': binomial_bound(z*SE*N + N*p, N, p=p),
+        'Binom exact': binomial_exact(z*SE*N + N*p, N, p=p),
+        # 'Binom sample': binomial_sample(z*SE*N + N*p, N, p=p),
+    })
+
+    # Metadata for plotting (colors and line styles)
+    plot_config = {
+        'Gaussian (CLT)': {'color': 'red', 'linestyle': 'solid'},
+        'Bennett': {'color': 'red', 'linestyle': 'solid'},
+        'Hoeffding': {'color': 'blue', 'linestyle': 'solid'},
+        'Bernstein': {'color': 'purple', 'linestyle': 'solid'},
+        'Binom bound': {'color': 'green', 'linestyle': 'solid'},
+        'Binom exact': {'color': 'green', 'linestyle': 'dot'},
+        'Binom sample': {'color': 'green', 'linestyle': 'dash'},
+    }
+
+    metadata = {'sigma': sigma, 'N': N, 'plot_config': plot_config}
+
+    return df, metadata
+
+
+def plot_tail_bounds(N: int = 30, p: float = 0.8,
+                     z_max: float = 6.0, n_points: int = 1000):
+    """
+    Create both regular and log-scale plots of tail bounds using Plotly.
+
+    Args:
+        N: number of samples
+        p: probability parameter for binomial
+        z_max: maximum z-score to plot
+        n_points: number of points for plotting
+    """
+    # Generate data
+    df, metadata = generate_iid_binomial_tailbounds(N, p, z_max, n_points)
+    sigma = metadata['sigma']
+    plot_config = metadata['plot_config']
 
     # Create subplots
     fig = make_subplots(
         rows=1, cols=2,
-        subplot_titles=("Regular Scale", "Log Scale"),
+        subplot_titles=("Linear Scale", "Log Scale"),
         horizontal_spacing=0.1
     )
 
-    print(binomial_bound(z*SE*N + N*p, N, p=p))
-    traces = [
-        ('Gaussian (exact CLT)', gaussian_exact, "red", 'solid'),
-        ('Gaussian Chernoff exp(-z²/2)', gaussian_chernoff, "red", 'dash'),
-        (f'Hoeffding', hoeffdingz, "blue", 'solid'),
-        (f'Bernstein', bernstein, "green", 'solid'),
-        (f'Binom exact', binomaial_exact(z*SE*N + N*p, N, p=p), "green", 'solid'),
-        (f'Binom bound', binomial_bound(z*SE*N + N*p, N, p=p), "green", 'solid'),
-    ]
+    # Plot each bound
+    for col_name in df.columns:
+        if col_name == 'z':
+            continue
 
-    for name, y_data, color, dash in traces:
+        config = plot_config[col_name]
+
         # Regular scale
         fig.add_trace(go.Scatter(
-            x=z, y=y_data, name=name,
-            line=dict(color=color, width=2, dash=dash),
-            legendgroup=name
+            x=df['z'], y=df[col_name], name=col_name,
+            line=dict(color=config['color'], width=2, dash=config['linestyle']),
+            legendgroup=col_name
         ), row=1, col=1)
 
         # Log scale
         fig.add_trace(go.Scatter(
-            x=z, y=y_data, name=name,
-            line=dict(color=color, width=2, dash=dash),
-            legendgroup=name, showlegend=False
+            x=df['z'], y=df[col_name], name=col_name,
+            line=dict(color=config['color'], width=2, dash=config['linestyle']),
+            legendgroup=col_name, showlegend=False
         ), row=1, col=2)
 
     # Update y-axis to log scale for second plot
@@ -167,24 +216,107 @@ def plot_tail_bounds(sigma: float = 0.5, N: int = 30, M: float = 1.0,
         width=1200,
         height=500,
         legend=dict(x=1.02, y=1, xanchor='left'),
-        title_text=f"Tail Bounds Comparison (σ={sigma}, N={N}, M={M})"
+        title_text=f"Tail Bounds Comparison (p={p:.2f}, N={N})"
     )
 
     return fig
 
 
-if __name__ == "__main__":
-    # Default parameters
-    sigma = 0.5  # max variance for Bernoulli (p=0.5)
-    N = 100      # number of samples
-    M = 1.0      # bound on |X - μ| for [0,1] RVs
+def plot_tail_bounds_seaborn(N: int = 30, p: float = 0.8,
+                              z_max: float = 6.0, n_points: int = 1000):
+    """
+    Create both regular and log-scale plots of tail bounds using seaborn/matplotlib.
 
-    # Combined plot with default params
-    fig = plot_tail_bounds(sigma=sigma, N=N, M=M)
+    Args:
+        N: number of samples
+        p: probability parameter for binomial
+        z_max: maximum z-score to plot
+        n_points: number of points for plotting
+
+    Returns:
+        matplotlib figure object
+    """
+    # Generate data
+    df, metadata = generate_iid_binomial_tailbounds(N, p, z_max, n_points)
+    sigma = metadata['sigma']
+    plot_config = metadata['plot_config']
+
+    # Set seaborn style
+    sns.set_style("whitegrid")
+
+    # Create figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+    # Mapping for matplotlib linestyles
+    linestyle_map = {'solid': '-', 'dash': '--'}
+
+    # Plot each bound
+    for col_name in df.columns:
+        if col_name == 'z':
+            continue
+
+        config = plot_config[col_name]
+        linestyle = linestyle_map[config['linestyle']]
+
+        # Regular scale
+        ax1.plot(df['z'], df[col_name],
+                color=config['color'],
+                linestyle=linestyle,
+                linewidth=2,
+                label=col_name)
+
+        # Log scale
+        ax2.plot(df['z'], df[col_name],
+                color=config['color'],
+                linestyle=linestyle,
+                linewidth=2,
+                label=col_name)
+
+    # Configure axes
+    ax1.set_xlabel('z-score')
+    ax1.set_ylabel('P(Z > z)')
+    ax1.set_title('Regular Scale')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+
+    ax2.set_xlabel('z-score')
+    ax2.set_ylabel('P(Z > z)')
+    ax2.set_title('Log Scale')
+    ax2.set_yscale('log')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3, which='both')
+
+    fig.suptitle(f'Tail Bounds Comparison (σ={sigma:.3f}, N={N})', fontsize=14)
+    plt.tight_layout()
+
+    return fig
+
+
+
+if __name__ == "__main__":
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Plot tail bounds for probability distributions')
+    parser.add_argument('--N', type=int, default=100, help='Number of samples')
+    parser.add_argument('--p', type=float, default=0.7, help='Probability parameter')
+    parser.add_argument('--z-max', type=float, default=5, help='Maximum z-score to plot')
+    parser.add_argument('--pdf', action='store_true', help='Also generate PDF output using seaborn')
+    parser.add_argument('--pdf-only', action='store_true', help='Only generate PDF output (skip HTML)')
+
+    args = parser.parse_args()
 
     # Save to OUTPUT directory
     import os
     os.makedirs('OUTPUT', exist_ok=True)
-    fig.write_html('OUTPUT/tailbounds.html')
-    print(f"Generated plots with σ={sigma}, N={N}, M={M}")
-    print(f"Plot saved to OUTPUT/tailbounds.html")
+
+    # Generate plotly HTML plot (unless pdf-only)
+    if not args.pdf_only:
+        fig = plot_tail_bounds(N=args.N, p=args.p, z_max=args.z_max)
+        fig.write_html('OUTPUT/tailbounds.html')
+        print(f"Plot saved to OUTPUT/tailbounds.html")
+
+    # Generate seaborn PDF plot if requested
+    if args.pdf or args.pdf_only:
+        fig_seaborn = plot_tail_bounds_seaborn(N=args.N, p=args.p, z_max=args.z_max)
+        fig_seaborn.savefig('OUTPUT/tailbounds.pdf', bbox_inches='tight', dpi=300)
+        plt.close(fig_seaborn)
+        print(f"Plot saved to OUTPUT/tailbounds.pdf")
