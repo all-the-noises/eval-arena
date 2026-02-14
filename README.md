@@ -30,7 +30,7 @@ For the potential of noise reduction, the remaining data standard error is shown
 * By measuring the noise of many pairs of models, some clear patterns emerge.
 
 
-The original Eval-Arena docs are at [doc/eval-arena-findings.md](doc/eval-arena-readme.md).
+The original Eval-Arena docs are at [doc/eval-arena-readme.md](doc/eval-arena-readme.md).
 
 ## 🚀 Quick Start
 
@@ -63,7 +63,7 @@ The question level metrics are stored in this format:
 
 Data contributions are welcome via pull requests to [data](https://github.com/all-the-noises/data).
 
-The datasets used to produce the results is in [this release](https://github.com/crux-eval/eval-arena/releases/tag/data-12-25-25). The corresponding runs are at [`submit_all.sh`](./submit_all.sh)
+The datasets used to produce the results is in [this release](https://github.com/all-the-noises/eval-arena/releases/tag/data-12-25-25). The corresponding runs are at [`submit_all.sh`](./submit_all.sh)
 
 This data is visualized by [heatmaps](https://all-the-noises.github.io/highk_temp0.7/math500_cot/ex_v_model_acc.html), accessible through the "data" link of each eval from the [main table](https://all-the-noises.github.io/). All raw data files and figures can be accessed through the "raw" link, which points to each benchmark's `raw_index.html`.
 

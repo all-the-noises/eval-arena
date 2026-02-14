@@ -117,7 +117,7 @@ If you find this work helpful, consider citing us.
   year = {2024},
   publisher = {GitHub},
   journal = {GitHub repository},
-  howpublished = {\url{https://github.com/crux-eval/eval-arena}}
+  howpublished = {\url{https://github.com/all-the-noises/eval-arena}}
 }
 ```
 
