@@ -13,7 +13,6 @@ from reports import (
     write_example_report,
     write_model_report,
     write_summary_table,
-    write_sections_index,
     write_directory_index,
 )
 from signal_noise import signal_to_noise
@@ -50,8 +49,6 @@ def render_reports(args: ReportArgs, results: dict[str, arena.ArenaResult] | Non
 
     df_summary = pd.DataFrame([res.summary_stats for res in results.values()])
     write_summary_table(df_summary, out_dir / "index.html", include_var_components=args.include_var_components)
-
-    write_sections_index(Path(args.out_dir))
 
 
 def run_arena(args: ReportArgs):
