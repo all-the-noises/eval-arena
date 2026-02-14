@@ -222,7 +222,7 @@ def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_
         for c in includes:
             percent[c] = percent[c] / percent["size"]
         return percent
-    includes_cols = ["benchmark_id", "size", "models", "SE(A)", "SE_x(A)", "SE(A-B)", "SE_x(A-B)", "corr(A,B)", "no_solve", "tau-", "details"]
+    includes_cols = ["benchmark_id", "size", "models", "SE(A)", "SE_x(A)", "SE(A-B)", "SE_x(A-B)", "no_solve", "tau-", "details"]
     if not include_var_components:
         includes_cols = [c for c in includes_cols if not c.startswith("SE_x")]
     percent_cols = ["no_solve", "tau-"]
