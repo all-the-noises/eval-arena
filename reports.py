@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 from datetime import datetime
@@ -145,8 +144,7 @@ def write_data(bid: str, ares: ArenaResult, out_dir: str):
     ares.summary.to_parquet(data_path / "summary.parquet")
     df_stats = pd.DataFrame([ares.summary_stats])
     logger.info(f"Summary stats for {bid}:\n{df_stats}")
-    with open(data_path / "summary_stats.json", "w") as f:
-        json.dump(ares.summary_stats, f, indent=2)
+    df_stats.to_json(data_path / f"summary_stats.jsonl", orient="records", lines=True)
 
 
 def load_data(out_dir) -> dict[str, ArenaResult] | None:
@@ -167,8 +165,7 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
         model_table = pd.read_json(data_path / "model.jsonl", orient="records", lines=True)
         example_table = pd.read_parquet(data_path / "example.parquet")
         summary = pd.read_parquet(data_path / "summary.parquet")
-        with open(data_path / "summary_stats.json", "r") as f:
-            summary_stats = json.load(f)
+        summary_stats = pd.read_json(data_path / f"summary_stats.jsonl", orient="records", lines=True).iloc[0].to_dict()
         results[bid] = ArenaResult(
             summary=summary,
             model_table=model_table,
