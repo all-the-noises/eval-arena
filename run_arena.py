@@ -15,7 +15,6 @@ from reports import (
     write_summary_table,
     write_directory_index,
 )
-from signal_noise import signal_to_noise
 from utils import load_jsonl_files, check_data, fill_count, check_and_fill_correct
 
 logger = logging.getLogger(__name__)
