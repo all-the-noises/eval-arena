@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 
 from jinja2 import Template
@@ -230,10 +231,13 @@ def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_
     logger.info(f"Summary statistics:\n{summary_percent}")
     template_path = r"templates/summary.html"
 
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     with open(output_path, "w", encoding="utf-8") as output_file:
         with open(template_path) as template_file:
             j2_template = Template(template_file.read())
             output_file.write(j2_template.render({
+                "timestamp": timestamp,
                 "count_table": summary_count[includes_cols].to_html(escape=False, index=False),
                 "percent_table": summary_percent[includes_cols].to_html(
                     escape=False,
