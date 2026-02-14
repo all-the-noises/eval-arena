@@ -193,7 +193,7 @@ def write_directory_index(benchmark_id: str, OUTPUT_PATH):
     # Get root HTML files (reports)
     report_files = sorted([f.name for f in base_path.iterdir() if f.is_file() and f.suffix == '.html'])
 
-    template_path=r"templates/template_data.html"
+    template_path=r"templates/template_raw_index.html"
     output_path = Path(OUTPUT_PATH) / "raw_index.html"
     with open(output_path, "w", encoding="utf-8") as output_file:
         with open(template_path) as template_file:
