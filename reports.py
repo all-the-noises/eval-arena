@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import datetime
@@ -138,13 +139,14 @@ def write_data(bid: str, ares: ArenaResult, out_dir: str):
 
     data_path = benchmark_out_dir / "tables"
     os.makedirs(data_path, exist_ok=True)
-    ares.input_table.to_json(data_path / "input.jsonl", orient="records", lines=True)
+    ares.input_table.to_parquet(data_path / "input.parquet")
     ares.model_table.to_json(data_path / "model.jsonl", orient="records", lines=True)
-    ares.example_table.to_json(data_path / "example.jsonl", orient="records", lines=True)
-    ares.summary.to_json(data_path / "summary.jsonl", orient="records", lines=True)
+    ares.example_table.to_parquet(data_path / "example.parquet")
+    ares.summary.to_parquet(data_path / "summary.parquet")
     df_stats = pd.DataFrame([ares.summary_stats])
     logger.info(f"Summary stats for {bid}:\n{df_stats}")
-    df_stats.to_json(data_path / f"summary_stats.jsonl", orient="records", lines=True)
+    with open(data_path / "summary_stats.json", "w") as f:
+        json.dump(ares.summary_stats, f, indent=2)
 
 
 def load_data(out_dir) -> dict[str, ArenaResult] | None:
@@ -152,7 +154,7 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
     out_dir = Path(out_dir)
     benchmark_dirs = [
         d for d in out_dir.iterdir()
-        if d.is_dir() and (d / "tables" / "input.jsonl").exists()
+        if d.is_dir() and (d / "tables" / "input.parquet").exists()
     ]
     if not benchmark_dirs:
         return None
@@ -161,11 +163,12 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
     for d in benchmark_dirs:
         bid = d.name
         data_path = d / "tables"
-        input_table = pd.read_json(data_path / "input.jsonl", orient="records", lines=True)
+        input_table = pd.read_parquet(data_path / "input.parquet")
         model_table = pd.read_json(data_path / "model.jsonl", orient="records", lines=True)
-        example_table = pd.read_json(data_path / "example.jsonl", orient="records", lines=True)
-        summary = pd.read_json(data_path / "summary.jsonl", orient="records", lines=True)
-        summary_stats = pd.read_json(data_path / f"summary_stats.jsonl", orient="records", lines=True).iloc[0].to_dict()
+        example_table = pd.read_parquet(data_path / "example.parquet")
+        summary = pd.read_parquet(data_path / "summary.parquet")
+        with open(data_path / "summary_stats.json", "r") as f:
+            summary_stats = json.load(f)
         results[bid] = ArenaResult(
             summary=summary,
             model_table=model_table,
