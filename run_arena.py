@@ -8,9 +8,10 @@ import pandas as pd
 import arena
 from arena import ReportArgs
 from reports import (
+    load_data,
+    write_data,
     write_example_report,
     write_model_report,
-    write_data_tables,
     write_summary_table,
     write_sections_index,
     write_directory_index,
@@ -29,52 +30,57 @@ def setup_output(args: ReportArgs):
     
     with open(Path("templates/bulma.min.css"), "rb") as src_file, open(Path(args.out_dir) / "static" / "css" / "bulma.min.css", "wb") as dst_file:
         dst_file.write(src_file.read())
-    
-    tmp_dir = Path(args.out_dir) / "tmp"
-    os.makedirs(tmp_dir, exist_ok=True)
+
+
+def render_reports(args: ReportArgs, results: dict[str, arena.ArenaResult] | None = None):
+    out_dir = Path(args.out_dir)
+
+    if not results:
+        results = load_data(out_dir)
+    if not results:
+        logger.error(f"No benchmark data found in {out_dir}. Run with recompute=True first.")
+        return
+
+    for bid, arena_res in results.items():
+        benchmark_out_dir = out_dir / bid
+        logger.info(f"Rendering reports for {bid}...")
+        write_model_report(bid, arena_res, benchmark_out_dir)
+        write_example_report(bid, arena_res, benchmark_out_dir)
+        write_directory_index(bid, benchmark_out_dir)
+
+    df_summary = pd.DataFrame([res.summary_stats for res in results.values()])
+    write_summary_table(df_summary, out_dir / "index.html", include_var_components=args.include_var_components)
+
+    write_sections_index(Path(args.out_dir))
+
 
 def run_arena(args: ReportArgs):
-    records = load_jsonl_files(args.data)
-    eval_results = pd.DataFrame(records)
-    eval_results = fill_count(eval_results)
-    eval_results = check_and_fill_correct(eval_results)
-    check_data(eval_results)
-    logger.info(f"Loaded {len(eval_results)} evaluation results")
-
-    benchmarks = set(eval_results["benchmark_id"])
-    logger.info(f"Included benchmarks: {benchmarks}")
-    logger.info(f"Included models: {set(eval_results['model'])}")
-    tmp_dir = Path(args.out_dir) / "tmp"
-
+    results = {}
     if args.recompute:
+        records = load_jsonl_files(args.data)
+        eval_results = pd.DataFrame(records)
+        eval_results = fill_count(eval_results)
+        eval_results = check_and_fill_correct(eval_results)
+        check_data(eval_results)
+        logger.info(f"Loaded {len(eval_results)} evaluation results")
+
+        benchmarks = set(eval_results["benchmark_id"])
+        logger.info(f"Included benchmarks: {benchmarks}")
+        logger.info(f"Included models: {set(eval_results['model'])}")
+
         for bid in benchmarks:
             logger.info(f"Processing {bid}...")
             result_bid = eval_results[eval_results["benchmark_id"] == bid]
             arena_res: arena.ArenaResult = arena.summarize_benchmark(result_bid, args)
 
-            sig_to_noise = signal_to_noise(bid, arena_res.summary)
-            summary_stats = arena_res.summary_stats
-            summary_stats["sig_noise"] = sig_to_noise["signal to noise"].median() if sig_to_noise is not None else float("nan")
+            write_data(bid, arena_res, args.out_dir)
+            results[bid] = arena_res
 
-            logger.info(f"Summary stats for {bid}:\n{pd.DataFrame([summary_stats])}")
-            pd.DataFrame([summary_stats]).to_json(tmp_dir / f"summary-{bid}.jsonl", orient="records", lines=True)
-
-            benchmark_out_dir = Path(args.out_dir) / bid
-            os.makedirs(benchmark_out_dir, exist_ok=True)
-            
-            write_model_report(bid, arena_res, benchmark_out_dir)
-            write_example_report(bid, arena_res, benchmark_out_dir)
-            write_data_tables(arena_res, benchmark_out_dir)
-            write_directory_index(bid, benchmark_out_dir)
-
-    if args.write_summary:
-        records = load_jsonl_files(f"{tmp_dir}/summary-*.jsonl")
-        logger.info(f"Loaded {len(records)} summary records")
-        df_summary = pd.DataFrame(records)
+        df_summary = pd.DataFrame([res.summary_stats for res in results.values()])
         df_summary.to_csv(Path(args.out_dir) / "summary.csv")
-        write_summary_table(pd.DataFrame(df_summary), Path(args.out_dir) / "index.html", include_var_components=args.include_var_components)
+        logger.info(f"Wrote summary.csv with {len(df_summary)} records")
 
-    write_sections_index(Path(args.out_dir))
+    render_reports(args, results or None)
 
 
 if __name__ == "__main__":

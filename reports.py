@@ -130,14 +130,49 @@ def write_figures(sections: dict, OUTPUT_PATH):
             output_file.write(section_content)
 
 
-def write_data_tables(ares: ArenaResult, OUTPUT_PATH):
-    """Write data tables (CSVs) to the tables directory."""
-    data_path = Path(OUTPUT_PATH) / "tables"
+def write_data(bid: str, ares: ArenaResult, out_dir: str):
+    """Write all ArenaResult data for a benchmark."""
+    benchmark_out_dir = Path(out_dir) / bid
+    os.makedirs(benchmark_out_dir, exist_ok=True)
+
+    data_path = benchmark_out_dir / "tables"
     os.makedirs(data_path, exist_ok=True)
-    ares.input_table.to_csv(data_path / "input.csv", index=True)
-    ares.model_table.to_csv(data_path / "model.csv")
-    ares.example_table.to_csv(data_path / "example.csv")
-    ares.summary.to_csv(data_path / "summary.csv")
+    ares.input_table.to_json(data_path / "input.jsonl", orient="records", lines=True)
+    ares.model_table.to_json(data_path / "model.jsonl", orient="records", lines=True)
+    ares.example_table.to_json(data_path / "example.jsonl", orient="records", lines=True)
+    ares.summary.to_json(data_path / "summary.jsonl", orient="records", lines=True)
+    df_stats = pd.DataFrame([ares.summary_stats])
+    logger.info(f"Summary stats for {bid}:\n{df_stats}")
+    df_stats.to_json(data_path / f"summary_stats.jsonl", orient="records", lines=True)
+
+
+def load_data(out_dir) -> dict[str, ArenaResult] | None:
+    """Load all ArenaResults from out_dir. Returns None if no data found."""
+    out_dir = Path(out_dir)
+    benchmark_dirs = [
+        d for d in out_dir.iterdir()
+        if d.is_dir() and (d / "tables" / "input.jsonl").exists()
+    ]
+    if not benchmark_dirs:
+        return None
+
+    results = {}
+    for d in benchmark_dirs:
+        bid = d.name
+        data_path = d / "tables"
+        input_table = pd.read_json(data_path / "input.jsonl", orient="records", lines=True)
+        model_table = pd.read_json(data_path / "model.jsonl", orient="records", lines=True)
+        example_table = pd.read_json(data_path / "example.jsonl", orient="records", lines=True)
+        summary = pd.read_json(data_path / "summary.jsonl", orient="records", lines=True)
+        summary_stats = pd.read_json(data_path / f"summary_stats.jsonl", orient="records", lines=True).iloc[0].to_dict()
+        results[bid] = ArenaResult(
+            summary=summary,
+            model_table=model_table,
+            example_table=example_table,
+            input_table=input_table,
+            summary_stats=summary_stats,
+        )
+    return results
 
 
 def write_directory_index(benchmark_id: str, OUTPUT_PATH):
@@ -211,7 +246,7 @@ def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_
         links.append(f"""<a href="{bid}/model.html">models </a> """)
         links.append(f"""<a href="{bid}/ex.html"> examples </a>""")
         links.append(f"""<a href="{bid}/ex_v_model_acc.html"> data </a>""")
-        links.append(f"""<a href="{bid}/raw_index.html"> raw </a>""")
+        links.append(f"""<a href="{bid}/raw_index.html"> more </a>""")
         return "|".join(links)
     summary_count["details"] = summary_count["benchmark_id"].apply(link_detail)
 
