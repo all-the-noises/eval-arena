@@ -141,8 +141,9 @@ def write_data(bid: str, ares: ArenaResult, out_dir: str):
     ares.model_table.to_json(data_path / "model.jsonl", orient="records", lines=True)
     ares.example_table.to_json(data_path / "example.jsonl", orient="records", lines=True)
     ares.summary.to_json(data_path / "summary.jsonl", orient="records", lines=True)
-    logger.info(f"Summary stats for {bid}:\n{pd.DataFrame([ares.summary_stats])}")
-    pd.DataFrame([ares.summary_stats]).to_json(data_path / f"summary-{bid}.jsonl", orient="records", lines=True)
+    df_stats = pd.DataFrame([ares.summary_stats])
+    logger.info(f"Summary stats for {bid}:\n{df_stats}")
+    df_stats.to_json(data_path / f"summary_stats.jsonl", orient="records", lines=True)
 
 
 def load_data(out_dir) -> dict[str, ArenaResult] | None:
@@ -163,7 +164,7 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
         model_table = pd.read_json(data_path / "model.jsonl", orient="records", lines=True)
         example_table = pd.read_json(data_path / "example.jsonl", orient="records", lines=True)
         summary = pd.read_json(data_path / "summary.jsonl", orient="records", lines=True)
-        summary_stats = pd.read_json(data_path / f"summary-{bid}.jsonl", orient="records", lines=True).iloc[0].to_dict()
+        summary_stats = pd.read_json(data_path / f"summary_stats.jsonl", orient="records", lines=True).iloc[0].to_dict()
         results[bid] = ArenaResult(
             summary=summary,
             model_table=model_table,
@@ -245,7 +246,7 @@ def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_
         links.append(f"""<a href="{bid}/model.html">models </a> """)
         links.append(f"""<a href="{bid}/ex.html"> examples </a>""")
         links.append(f"""<a href="{bid}/ex_v_model_acc.html"> data </a>""")
-        links.append(f"""<a href="{bid}/raw_index.html"> raw </a>""")
+        links.append(f"""<a href="{bid}/raw_index.html"> more </a>""")
         return "|".join(links)
     summary_count["details"] = summary_count["benchmark_id"].apply(link_detail)
 
