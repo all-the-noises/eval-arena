@@ -205,7 +205,7 @@ def write_directory_index(benchmark_id: str, OUTPUT_PATH):
                 "report_files": report_files,
             }))
 
-def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_var_components: bool = False):
+def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_var_components: bool = False, include_otherlinks = False):
     summary_count = summary_count.sort_values(by="benchmark_id")
 
     def link_detail(bid):
@@ -233,27 +233,30 @@ def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    with open(output_path, "w", encoding="utf-8") as output_file:
-        with open(template_path) as template_file:
-            j2_template = Template(template_file.read())
-            output_file.write(j2_template.render({
-                "timestamp": timestamp,
-                "count_table": summary_count[includes_cols].to_html(escape=False, index=False),
-                "percent_table": summary_percent[includes_cols].to_html(
-                    escape=False,
-                    classes="number-table",
-                    index=False,
-                    formatters={
-                        "SE(A)": lambda x: _format_stats_badge(x),
-                        "SE_x(A)": lambda x: _format_stats_badge(x),
-                        "SE(A-B)": lambda x: _format_stats_badge(x),
-                        "SE_x(A-B)": lambda x: _format_stats_badge(x),
-                        "corr(A,B)": lambda x: _format_stats_badge(x),
-                        "no_solve": lambda x: f"{x*100:.2g}",
-                        "tau-": lambda x: f"{x*100:.2g}",
-                        "sig_noise": "{:.2g}".format,
-                    }),
-            }))
+    with (
+        open(output_path, "w", encoding="utf-8") as output_file,
+        open(template_path) as template_file
+    ):
+        j2_template = Template(template_file.read())
+        output_file.write(j2_template.render({
+            "timestamp": timestamp,
+            "include_otherlinks": include_otherlinks,
+            "count_table": summary_count[includes_cols].to_html(escape=False, index=False),
+            "percent_table": summary_percent[includes_cols].to_html(
+                escape=False,
+                classes="number-table",
+                index=False,
+                formatters={
+                    "SE(A)": lambda x: _format_stats_badge(x),
+                    "SE_x(A)": lambda x: _format_stats_badge(x),
+                    "SE(A-B)": lambda x: _format_stats_badge(x),
+                    "SE_x(A-B)": lambda x: _format_stats_badge(x),
+                    "corr(A,B)": lambda x: _format_stats_badge(x),
+                    "no_solve": lambda x: f"{x*100:.2g}",
+                    "tau-": lambda x: f"{x*100:.2g}",
+                    "sig_noise": "{:.2g}".format,
+                }),
+        }))
 
 # Reports
 # =============================================================================

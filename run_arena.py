@@ -47,7 +47,9 @@ def render_reports(args: ReportArgs, results: dict[str, arena.ArenaResult] | Non
         write_directory_index(bid, benchmark_out_dir)
 
     df_summary = pd.DataFrame([res.summary_stats for res in results.values()])
-    write_summary_table(df_summary, out_dir / "index.html", include_var_components=args.include_var_components)
+    write_summary_table(df_summary, out_dir / "index.html",
+        include_var_components=args.include_var_components,
+        include_otherlinks=args.include_otherlinks)
 
 
 def run_arena(args: ReportArgs):

@@ -36,6 +36,8 @@ class ReportArgs:
     min_perf: float = 0.1 # near 0 models behave differently
     include_var_components: bool = True # use when there are multiple samples to report SE_x
 
+    include_otherlinks: bool = True # include the standard release links to other datasets
+
 class BattleSummary:
     @staticmethod
     def _prob_outcome(pa: pd.DataFrame) -> pd.DataFrame:

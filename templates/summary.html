@@ -19,6 +19,7 @@
 <section class="section">
     <h1 class="title"> Measuring all the noises of LLM evals </h1>
     <h3 class="subtitle is-5"> <a href=".">Home</a>  <a href="https://arxiv.org/abs/2512.21326">Paper</a> <a href="https://github.com/all-the-noises/eval-arena">Code</a> </h2>
+    {% if include_otherlinks %}
     <h3 class="subtitle is-5"><b>Datasets:</b>
       <a href="../main/">main</a>,
       <a href="../train_curve/">train_curve</a>,
@@ -27,6 +28,7 @@
       <a href="../lowk_temp1/">T=1</a>,
       <a href="../highk_temp0.7/">high K T=0.7</a>,
     </h3>
+    {% endif %}
       Details are linked and more summary stats are available on mouse over.
       <ul>
         <li><b>size</b>: number of questions in the eval</li>
@@ -40,7 +42,7 @@
         <!-- <li><b>sig_noise</b>: median of <a href="signal_noise.html">signal-to-noise ratios</a> for doubling the model size.</li> -->
       </ul>
 
-<p><b>Full table: </b><a href="summary.csv">summary.csv</a> </p>
+<p><a href="summary.csv">Full table</a>, <a href="https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md">Descriptions</a> </p>
 
     <div style="overflow-x: auto;">
     {{ percent_table }}
