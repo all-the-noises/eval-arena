@@ -84,7 +84,7 @@ This data is visualized by [heatmaps](https://all-the-noises.github.io/highk_tem
 
 ## 🙏 Acknowledgements
 I thank Sean O’Brien, Lovish Madaan, Dieuwke Hupkes, Alex Gu, Jiawei
-Liu, Yuhang Lai, and Sten Sootla for making question-level data available for analysis. I am extremely grateful
+Liu, Yuhang Lai, Linyuan Gong, and Sten Sootla for making question-level data available for analysis. I am extremely grateful
 to Evan Miller, Nicolas Usunier, Zach Rait, Yuxiang Wei, Jannik Kossen, and Ari Holtzman for
 valuable discussions and feedback; Pedro Rodriguez, Ofir Press, Naman Jain, Baptiste Rozière,
 Gabriel Synnaeve, Dawn Song, and Zijian Wang for their advice and support. The all-pairs approach
