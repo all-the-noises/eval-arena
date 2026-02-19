@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 
 from jinja2 import Template
@@ -147,10 +148,10 @@ def write_data(bid: str, ares: ArenaResult, out_dir: str):
 
     data_path = benchmark_out_dir / "tables"
     os.makedirs(data_path, exist_ok=True)
-    ares.input_table.to_json(data_path / "input.jsonl", orient="records", lines=True)
+    ares.input_table.to_parquet(data_path / "input.parquet")
     ares.model_table.to_json(data_path / "model.jsonl", orient="records", lines=True)
-    ares.example_table.to_json(data_path / "example.jsonl", orient="records", lines=True)
-    ares.summary.to_json(data_path / "summary.jsonl", orient="records", lines=True)
+    ares.example_table.to_parquet(data_path / "example.parquet")
+    ares.summary.to_parquet(data_path / "summary.parquet")
     df_stats = pd.DataFrame([ares.summary_stats])
     logger.info(f"Summary stats for {bid}:\n{df_stats}")
     df_stats.to_json(data_path / f"summary_stats.jsonl", orient="records", lines=True)
@@ -161,7 +162,7 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
     out_dir = Path(out_dir)
     benchmark_dirs = [
         d for d in out_dir.iterdir()
-        if d.is_dir() and (d / "tables" / "input.jsonl").exists()
+        if d.is_dir() and (d / "tables" / "input.parquet").exists()
     ]
     if not benchmark_dirs:
         return None
@@ -170,10 +171,10 @@ def load_data(out_dir) -> dict[str, ArenaResult] | None:
     for d in benchmark_dirs:
         bid = d.name
         data_path = d / "tables"
-        input_table = pd.read_json(data_path / "input.jsonl", orient="records", lines=True)
+        input_table = pd.read_parquet(data_path / "input.parquet")
         model_table = pd.read_json(data_path / "model.jsonl", orient="records", lines=True)
-        example_table = pd.read_json(data_path / "example.jsonl", orient="records", lines=True)
-        summary = pd.read_json(data_path / "summary.jsonl", orient="records", lines=True)
+        example_table = pd.read_parquet(data_path / "example.parquet")
+        summary = pd.read_parquet(data_path / "summary.parquet")
         summary_stats = pd.read_json(data_path / f"summary_stats.jsonl", orient="records", lines=True).iloc[0].to_dict()
         results[bid] = ArenaResult(
             summary=summary,
@@ -202,7 +203,7 @@ def write_directory_index(benchmark_id: str, OUTPUT_PATH):
     # Get root HTML files (reports)
     report_files = sorted([f.name for f in base_path.iterdir() if f.is_file() and f.suffix == '.html'])
 
-    template_path=r"templates/template_data.html"
+    template_path=r"templates/template_raw_index.html"
     output_path = Path(OUTPUT_PATH) / "raw_index.html"
     with open(output_path, "w", encoding="utf-8") as output_file:
         with open(template_path) as template_file:
@@ -214,41 +215,7 @@ def write_directory_index(benchmark_id: str, OUTPUT_PATH):
                 "report_files": report_files,
             }))
 
-
-def write_sections_index(out_dir: Path):
-    """
-    Generate ${OUTPATH}/raw_index.html listing all section files across benchmarks.
-    """
-    sections_index_dir = out_dir / "raw_index.html"
-    sections_index_dir.mkdir(parents=True, exist_ok=True)
-
-    html = ['<!DOCTYPE html><html><head>',
-            '<meta charset="utf-8">',
-            '<title>Sections Index</title>',
-            '<link rel="stylesheet" href="../static/css/bulma.min.css">',
-            '<link rel="stylesheet" href="../static/css/custom.css">',
-            '</head><body>',
-            '<section class="section"><div class="container">',
-            '<h1 class="title">All Sections</h1>']
-
-    # Find all benchmark directories with sections
-    for benchmark_dir in sorted(out_dir.iterdir()):
-        sections_path = benchmark_dir / "sections"
-        if sections_path.is_dir():
-            html.append(f'<h2 class="subtitle" style="margin-top: 1.5rem;">{benchmark_dir.name}</h2><ul>')
-            for f in sorted(sections_path.iterdir()):
-                if f.is_file() and f.suffix == '.html':
-                    html.append(f'<li><a href="../{benchmark_dir.name}/sections/{f.name}">{f.stem}</a></li>')
-            html.append('</ul>')
-
-    html.append('</div></section></body></html>')
-
-    index_path = sections_index_dir / "index.html"
-    with open(index_path, "w", encoding="utf-8") as f:
-        f.write('\n'.join(html))
-
-
-def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_var_components: bool = False):
+def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_var_components: bool = False, include_otherlinks = False):
     summary_count = summary_count.sort_values(by="benchmark_id")
 
     def link_detail(bid):
@@ -265,7 +232,7 @@ def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_
         for c in includes:
             percent[c] = percent[c] / percent["size"]
         return percent
-    includes_cols = ["benchmark_id", "size", "models", "SE(A)", "SE_x(A)", "SE(A-B)", "SE_x(A-B)", "corr(A,B)", "no_solve", "tau-", "details"]
+    includes_cols = ["benchmark_id", "size", "models", "SE(A)", "SE_x(A)", "SE(A-B)", "SE_x(A-B)", "no_solve", "tau-", "details"]
     if not include_var_components:
         includes_cols = [c for c in includes_cols if not c.startswith("SE_x")]
     percent_cols = ["no_solve", "tau-"]
@@ -274,27 +241,33 @@ def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_
     logger.info(f"Summary statistics:\n{summary_percent}")
     template_path = r"templates/summary.html"
 
-    with open(output_path, "w", encoding="utf-8") as output_file:
-        with open(template_path) as template_file:
-            j2_template = Template(template_file.read())
-            output_file.write(j2_template.render({
-                "count_table": summary_count[includes_cols].to_html(escape=False, index=False),
-                "percent_table": summary_percent[includes_cols].to_html(
-                    escape=False,
-                    classes="number-table",
-                    index=False,
-                    formatters={
-                        "benchmark_id": _get_benchmark_link,
-                        "SE(A)": lambda x: _format_stats_badge(x),
-                        "SE_x(A)": lambda x: _format_stats_badge(x),
-                        "SE(A-B)": lambda x: _format_stats_badge(x),
-                        "SE_x(A-B)": lambda x: _format_stats_badge(x),
-                        "corr(A,B)": lambda x: _format_stats_badge(x),
-                        "no_solve": lambda x: f"{x*100:.2g}",
-                        "tau-": lambda x: f"{x*100:.2g}",
-                        "sig_noise": "{:.2g}".format,
-                    }),
-            }))
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    with (
+        open(output_path, "w", encoding="utf-8") as output_file,
+        open(template_path) as template_file
+    ):
+        j2_template = Template(template_file.read())
+        output_file.write(j2_template.render({
+            "timestamp": timestamp,
+            "include_otherlinks": include_otherlinks,
+            "count_table": summary_count[includes_cols].to_html(escape=False, index=False),
+            "percent_table": summary_percent[includes_cols].to_html(
+                escape=False,
+                classes="number-table",
+                index=False,
+                formatters={
+                    "benchmark_id": _get_benchmark_link,
+                    "SE(A)": lambda x: _format_stats_badge(x),
+                    "SE_x(A)": lambda x: _format_stats_badge(x),
+                    "SE(A-B)": lambda x: _format_stats_badge(x),
+                    "SE_x(A-B)": lambda x: _format_stats_badge(x),
+                    "corr(A,B)": lambda x: _format_stats_badge(x),
+                    "no_solve": lambda x: f"{x*100:.2g}",
+                    "tau-": lambda x: f"{x*100:.2g}",
+                    "sig_noise": "{:.2g}".format,
+                }),
+        }))
 
 # Reports
 # =============================================================================

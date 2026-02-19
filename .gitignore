@@ -4,4 +4,5 @@ data/**
 results/**
 __pycache__/**
 .vscode/**
+OUTPUT/**
 .DS_Store

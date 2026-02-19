@@ -1,3 +1,8 @@
+"""
+python -m scripts.signal_noise
+calculates signal to noise ratios based on scaling law
+only works for a subsite of models with annotated sizes
+"""
 import logging
 import re
 
@@ -143,7 +148,7 @@ if __name__ == '__main__':
     df.sort_values(by='total', inplace=True, ascending=False)
     fig.update_xaxes(categoryorder='mean descending')
 
-    OUTPUT_PATH = 'gh-pages/'
+    OUTPUT_PATH = 'OUTPUT'
     logger.info('Generating signal noise table...')
 
     PLOTLY_CONFIGS = dict(full_html=False, include_plotlyjs="cdn")
