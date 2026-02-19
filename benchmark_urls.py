@@ -6,9 +6,13 @@ BENCHMARK_DATASET_URLS = {
     "CRUXEval-input-T0.8": "https://crux-eval.github.io/",
     "CRUXEval-output-T0.2": "https://crux-eval.github.io/",
     "CRUXEval-output-T0.8": "https://crux-eval.github.io/",
+    "cruxeval_input_cot": "https://crux-eval.github.io/",
+    "cruxeval_output_cot": "https://crux-eval.github.io/",
     # EvalPlus
     "humaneval": "https://huggingface.co/datasets/openai/openai_humaneval",
+    "human_eval": "https://huggingface.co/datasets/openai/openai_humaneval",
     "humaneval+": "https://huggingface.co/datasets/evalplus/humanevalplus",
+    "human_eval_plus": "https://huggingface.co/datasets/evalplus/humanevalplus",
     "mbpp": "https://huggingface.co/datasets/google-research-datasets/mbpp",
     "mbpp+": "https://huggingface.co/datasets/evalplus/mbppplus",
     # LiveCodeBench
@@ -17,12 +21,14 @@ BENCHMARK_DATASET_URLS = {
     "lcb_codegen_v6_080124": "https://livecodebench.github.io/",
     # DS-1000
     "DS1000": "https://ds1000-code-gen.github.io/",
+    "ds1000": "https://ds1000-code-gen.github.io/",
     # SWE-bench
     "swebench-lite": "https://github.com/SWE-bench/experiments/tree/main/evaluation/lite",
     "swebench-verified": "https://github.com/SWE-bench/experiments/tree/main/evaluation/verified",
     "swebench-test": "https://github.com/SWE-bench/experiments/tree/main/evaluation/test",
     "swebench-bash-only": "https://github.com/SWE-bench/experiments/tree/main/evaluation/bash-only",
     "swebench-multimodal": "https://github.com/SWE-bench/experiments/tree/main/evaluation/multimodal",
+    "swebench-pro": "https://www.swebench.com/",
     # Terminal Bench
     "terminal-bench-1.0": "https://github.com/laude-institute/terminal-bench-leaderboard/tree/main/results/terminal-bench-core%400.1.1",
     "terminal-bench-2.0": "https://huggingface.co/datasets/alexgshaw/terminal-bench-2-leaderboard/tree/main/submissions/terminal-bench/2.0",
@@ -37,5 +43,29 @@ BENCHMARK_DATASET_URLS = {
     "nq": "https://huggingface.co/datasets/google-research-datasets/natural_questions",
     "tqa": "https://huggingface.co/datasets/trivia_qa",
     "gsm8k": "https://huggingface.co/datasets/openai/gsm8k",
+    "gsm8k_cot": "https://huggingface.co/datasets/openai/gsm8k",
+    "gsm8k_plus_cot": "https://huggingface.co/datasets/qintongli/GSM-Plus",
+    "mgsm_cot": "https://huggingface.co/datasets/juletxara/mgsm",
     "agi_english": "https://huggingface.co/datasets/baber/agieval",
+    # AGIEval subsets
+    "ap_cot": "https://huggingface.co/datasets/baber/agieval",
+    "gmat_cot": "https://huggingface.co/datasets/baber/agieval",
+    "lsat_cot": "https://huggingface.co/datasets/baber/agieval",
+    "gre_physics_cot": "https://huggingface.co/datasets/baber/agieval",
+    # MATH
+    "math500_cot": "https://huggingface.co/datasets/HuggingFaceH4/MATH-500",
+    "math_cot": "https://huggingface.co/datasets/hendrycks/competition_math",
+    # MMLU-Pro
+    "mmlu_pro_cot": "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro",
+    # GPQA
+    "gpqa_cot": "https://huggingface.co/datasets/Idavidrein/gpqa",
+    # BIG-Bench Hard
+    "bbh_cot": "https://huggingface.co/datasets/lukaemon/bbh",
+    # LeetCode
+    "leetcode": "https://huggingface.co/datasets/greengerong/leetcode",
+    # JEEBench
+    "jeebench_chat_cot": "https://huggingface.co/datasets/daman1209arora/jeebench",
+    # AIME
+    "aime2024_cot": "https://huggingface.co/datasets/AI-MO/aimo-validation-aime",
+    "aime2025_cot": "https://huggingface.co/datasets/AI-MO/aimo-validation-aime",
 }
