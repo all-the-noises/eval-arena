@@ -38,6 +38,16 @@ def _format_stats_badge(s):
     mean_str = "N/A" if mean is None else f"{100*mean:.2g}"
     return f"""<span class="tooltip" data-tooltip="{summary}">{mean_str}</span>"""
 
+from benchmark_urls import BENCHMARK_DATASET_URLS
+
+
+def _get_benchmark_link(benchmark_id: str) -> str:
+    url = BENCHMARK_DATASET_URLS.get(benchmark_id)
+    if url:
+        return f'<a href="{url}" target="_blank">{benchmark_id}</a>'
+    return benchmark_id
+
+
 def _get_anchor(benchmark_id: str, example_id: str):
     """
     link to the actual questions and outputs on selected benchmarks for easier inspection
@@ -274,6 +284,7 @@ def write_summary_table(summary_count: pd.DataFrame, output_path: Path, include_
                     classes="number-table",
                     index=False,
                     formatters={
+                        "benchmark_id": _get_benchmark_link,
                         "SE(A)": lambda x: _format_stats_badge(x),
                         "SE_x(A)": lambda x: _format_stats_badge(x),
                         "SE(A-B)": lambda x: _format_stats_badge(x),
