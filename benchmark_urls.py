@@ -1,52 +1,62 @@
 BENCHMARK_DATASET_URLS = {
     # CRUXEval
-    "CRUXEval-input": "https://crux-eval.github.io/",
-    "CRUXEval-output": "https://crux-eval.github.io/",
-    "CRUXEval-input-T0.2": "https://crux-eval.github.io/",
-    "CRUXEval-input-T0.8": "https://crux-eval.github.io/",
-    "CRUXEval-output-T0.2": "https://crux-eval.github.io/",
-    "CRUXEval-output-T0.8": "https://crux-eval.github.io/",
-    "cruxeval_input_cot": "https://crux-eval.github.io/",
-    "cruxeval_output_cot": "https://crux-eval.github.io/",
-    # EvalPlus
-    "humaneval": "https://huggingface.co/datasets/openai/openai_humaneval",
-    "human_eval": "https://huggingface.co/datasets/openai/openai_humaneval",
-    "humaneval+": "https://huggingface.co/datasets/evalplus/humanevalplus",
-    "human_eval_plus": "https://huggingface.co/datasets/evalplus/humanevalplus",
-    "mbpp": "https://huggingface.co/datasets/google-research-datasets/mbpp",
-    "mbpp+": "https://huggingface.co/datasets/evalplus/mbppplus",
+    "CRUXEval-input": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    "CRUXEval-output": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    "CRUXEval-input-T0.2": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    "CRUXEval-input-T0.8": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    "CRUXEval-output-T0.2": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    "CRUXEval-output-T0.8": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    "cruxeval_input_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    "cruxeval_output_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    # HumanEval / plus
+    "humaneval": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#humaneval--plus",
+    "human_eval": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#humaneval--plus",
+    "humaneval+": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#humaneval--plus",
+    "human_eval_plus": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#humaneval--plus",
+    # MBPP /MBPP+
+    "mbpp": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#mbpp--mbpp",
+    "mbpp+": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#mbpp--mbpp",
     # LiveCodeBench
-    "lcb_codegen_v5": "https://livecodebench.github.io/",
-    "lcb_codegen_v6": "https://livecodebench.github.io/",
-    "lcb_codegen_v6_080124": "https://livecodebench.github.io/",
+    "lcb_codegen_v5": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#livecodebench-lcb_codegen_v5-v6-v6_080124",
+    "lcb_codegen_v6": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#livecodebench-lcb_codegen_v5-v6-v6_080124",
+    "lcb_codegen_v6_080124": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#livecodebench-lcb_codegen_v5-v6-v6_080124",
     # DS-1000
-    "DS1000": "https://ds1000-code-gen.github.io/",
-    "ds1000": "https://ds1000-code-gen.github.io/",
+    "DS1000": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#ds-1000",
+    "ds1000": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#ds-1000",
     # SWE-bench
-    "swebench-lite": "https://github.com/SWE-bench/experiments/tree/main/evaluation/lite",
-    "swebench-verified": "https://github.com/SWE-bench/experiments/tree/main/evaluation/verified",
-    "swebench-test": "https://github.com/SWE-bench/experiments/tree/main/evaluation/test",
-    "swebench-bash-only": "https://github.com/SWE-bench/experiments/tree/main/evaluation/bash-only",
-    "swebench-multimodal": "https://github.com/SWE-bench/experiments/tree/main/evaluation/multimodal",
-    "swebench-pro": "https://www.swebench.com/",
-    # Terminal Bench
-    "terminal-bench-1.0": "https://github.com/laude-institute/terminal-bench-leaderboard/tree/main/results/terminal-bench-core%400.1.1",
-    "terminal-bench-2.0": "https://huggingface.co/datasets/alexgshaw/terminal-bench-2-leaderboard/tree/main/submissions/terminal-bench/2.0",
+    "swebench-lite": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-verified": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-test": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-bash-only": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-multimodal": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-pro": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
+    # Terminal-Bench
+    "terminal-bench-1.0": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#terminal-bench-10-20",
+    "terminal-bench-2.0": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#terminal-bench-10-20",
     # SAFIM
-    "safim": "https://huggingface.co/datasets/gonglinyuan/safim",
-    # Reasoning / knowledge
-    "arc_challenge": "https://huggingface.co/datasets/allenai/ai2_arc",
-    "hellaswag": "https://huggingface.co/datasets/Rowan/hellaswag",
-    "mmlu": "https://huggingface.co/datasets/cais/mmlu",
-    "piqa": "https://huggingface.co/datasets/ybisk/piqa",
-    "siqa": "https://huggingface.co/datasets/allenai/social_i_qa",
-    "nq": "https://huggingface.co/datasets/google-research-datasets/natural_questions",
-    "tqa": "https://huggingface.co/datasets/trivia_qa",
-    "gsm8k": "https://huggingface.co/datasets/openai/gsm8k",
-    "gsm8k_cot": "https://huggingface.co/datasets/openai/gsm8k",
-    "gsm8k_plus_cot": "https://huggingface.co/datasets/qintongli/GSM-Plus",
-    "mgsm_cot": "https://huggingface.co/datasets/juletxara/mgsm",
-    "agi_english": "https://huggingface.co/datasets/baber/agieval",
+    "safim": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#safim",
+    # ARC Challenge
+    "arc_challenge": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#arc-challenge",
+    # HellaSwag
+    "hellaswag": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#hellaswag",
+    # MMLU
+    "mmlu": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#mmlu",
+    "mmlu_pro_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#mmlu",
+    # PIQA
+    "piqa": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#piqa",
+    # Social IQA (siqa)
+    "siqa": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#social-iqa-siqa",
+    # Natural Questions (nq)
+    "nq": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#natural-questions-nq",
+    # TriviaWA (tqa)
+    "tqa": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#triviaqa-tqa",
+    # GSM8K
+    "gsm8k": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#gsm8k",
+    "gsm8k_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#gsm8k",
+    "gsm8k_plus_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#gsm8k",
+    "mgsm_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#gsm8k",
+    # AGIEval (English subset, agi_english)
+    "agi_english": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#agieval-english-subset-agi_english",
     # AGIEval subsets
     "ap_cot": "https://huggingface.co/datasets/baber/agieval",
     "gmat_cot": "https://huggingface.co/datasets/baber/agieval",
@@ -55,8 +65,6 @@ BENCHMARK_DATASET_URLS = {
     # MATH
     "math500_cot": "https://huggingface.co/datasets/HuggingFaceH4/MATH-500",
     "math_cot": "https://huggingface.co/datasets/hendrycks/competition_math",
-    # MMLU-Pro
-    "mmlu_pro_cot": "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro",
     # GPQA
     "gpqa_cot": "https://huggingface.co/datasets/Idavidrein/gpqa",
     # BIG-Bench Hard

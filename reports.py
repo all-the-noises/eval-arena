@@ -7,8 +7,10 @@ from jinja2 import Template
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import html
 
 from arena import ArenaResult
+from benchmark_urls import BENCHMARK_DATASET_URLS
 from figures import (
     fig_accs_and_pvalues,
     fig_cov_baseline,
@@ -39,15 +41,12 @@ def _format_stats_badge(s):
     mean_str = "N/A" if mean is None else f"{100*mean:.2g}"
     return f"""<span class="tooltip" data-tooltip="{summary}">{mean_str}</span>"""
 
-from benchmark_urls import BENCHMARK_DATASET_URLS
-
-
 def _get_benchmark_link(benchmark_id: str) -> str:
     url = BENCHMARK_DATASET_URLS.get(benchmark_id)
+    safe_id = html.escape(benchmark_id)
     if url:
         return f'<a href="{url}" target="_blank">{benchmark_id}</a>'
-    return benchmark_id
-
+    return safe_id
 
 def _get_anchor(benchmark_id: str, example_id: str):
     """
