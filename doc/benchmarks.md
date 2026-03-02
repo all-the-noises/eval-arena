@@ -154,3 +154,9 @@ The question level evaluation results is described under **eval results**. Some 
 - **Data**: [GitHub](https://github.com/idavidrein/gpqa) · [HuggingFace](https://huggingface.co/datasets/Idavidrein/gpqa)
 - **Eval results**: ran by collaborators
   
+## BIG-Bench Hard (`bbh_cot`)
+- **Size**: 6,511 questions
+- **Description**: Subset of [Big-Bench](https://github.com/google/BIG-bench) tasks for which prior language model evaluations did not outperform the average human-rater.
+- **Paper**: Suzgun et al., "Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them" ([arXiv:2210.09261](https://arxiv.org/pdf/2210.09261)), 2022
+- **Data**: [GitHub](https://github.com/suzgunmirac/BIG-Bench-Hard) · [HuggingFace](https://huggingface.co/datasets/lukaemon/bbh)
+- **Eval results**: ran by collaborators
