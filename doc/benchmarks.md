@@ -160,3 +160,10 @@ The question level evaluation results is described under **eval results**. Some 
 - **Paper**: Suzgun et al., "Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them" ([arXiv:2210.09261](https://arxiv.org/pdf/2210.09261)), 2022
 - **Data**: [GitHub](https://github.com/suzgunmirac/BIG-Bench-Hard) · [HuggingFace](https://huggingface.co/datasets/lukaemon/bbh)
 - **Eval results**: ran by collaborators
+
+## JEEBench (`jeebench_chat_cot`)
+- **Size**: 515 questions
+- **Description**: Challenging pre-engineering mathematics, physics and chemistry problems from the highly competitive IIT JEE-Advanced exam. Long-horizon reasoning on top of deep in-domain knowledge is essential for solving problems in this benchmark.
+- **Paper**: Arora et al., "Have LLMs Advanced Enough? A Challenging Problem Solving Benchmark For Large Language Models" ([ACL Anthology:2023.emnlp-main.468](https://aclanthology.org/2023.emnlp-main.468.pdf)), EMNLP 2023
+- **Data**: [HuggingFace](https://huggingface.co/datasets/daman1209arora/jeebench)
+- **Eval results**: ran by collaborators
