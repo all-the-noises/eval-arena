@@ -1,64 +1,65 @@
+docbase = "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md"
 BENCHMARK_DATASET_URLS = {
     # CRUXEval
-    "CRUXEval-input": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
-    "CRUXEval-output": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
-    "CRUXEval-input-T0.2": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
-    "CRUXEval-input-T0.8": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
-    "CRUXEval-output-T0.2": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
-    "CRUXEval-output-T0.8": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
-    "cruxeval_input_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
-    "cruxeval_output_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#cruxeval",
+    "CRUXEval-input": f"{BASE}#cruxeval",
+    "CRUXEval-output": f"{BASE}#cruxeval",
+    "CRUXEval-input-T0.2": f"{BASE}#cruxeval",
+    "CRUXEval-input-T0.8": f"{BASE}#cruxeval",
+    "CRUXEval-output-T0.2": f"{BASE}#cruxeval",
+    "CRUXEval-output-T0.8": f"{BASE}#cruxeval",
+    "cruxeval_input_cot": f"{BASE}#cruxeval",
+    "cruxeval_output_cot": f"{BASE}#cruxeval",
     # HumanEval / plus
-    "humaneval": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#humaneval--plus",
-    "human_eval": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#humaneval--plus",
-    "humaneval+": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#humaneval--plus",
-    "human_eval_plus": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#humaneval--plus",
+    "humaneval": f"{BASE}#humaneval--plus",
+    "human_eval": f"{BASE}#humaneval--plus",
+    "humaneval+": "#humaneval--plus",
+    "human_eval_plus": f"{BASE}#humaneval--plus",
     # MBPP /MBPP+
-    "mbpp": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#mbpp--mbpp",
-    "mbpp+": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#mbpp--mbpp",
+    "mbpp": f"{BASE}#mbpp--mbpp",
+    "mbpp+": f"{BASE}#mbpp--mbpp",
     # LiveCodeBench
-    "lcb_codegen_v5": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#livecodebench-lcb_codegen_v5-v6-v6_080124",
-    "lcb_codegen_v6": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#livecodebench-lcb_codegen_v5-v6-v6_080124",
-    "lcb_codegen_v6_080124": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#livecodebench-lcb_codegen_v5-v6-v6_080124",
+    "lcb_codegen_v5": f"{BASE}#livecodebench-lcb_codegen_v5-v6-v6_080124",
+    "lcb_codegen_v6": f"{BASE}#livecodebench-lcb_codegen_v5-v6-v6_080124",
+    "lcb_codegen_v6_080124": f"{BASE}#livecodebench-lcb_codegen_v5-v6-v6_080124",
     # DS-1000
-    "DS1000": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#ds-1000",
-    "ds1000": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#ds-1000",
+    "DS1000": f"{BASE}#ds-1000",
+    "ds1000": f"{BASE}#ds-1000",
     # SWE-bench
-    "swebench-lite": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
-    "swebench-verified": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
-    "swebench-test": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
-    "swebench-bash-only": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
-    "swebench-multimodal": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
-    "swebench-pro": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-lite": f"{BASE}#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-verified": f"{BASE}#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-test": f"{BASE}#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-bash-only": f"{BASE}#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-multimodal": f"{BASE}#swe-bench-test-lite-verified-bash-only-multimodal",
+    "swebench-pro": f"{BASE}#swe-bench-test-lite-verified-bash-only-multimodal",
     # Terminal-Bench
-    "terminal-bench-1.0": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#terminal-bench-10-20",
-    "terminal-bench-2.0": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#terminal-bench-10-20",
+    "terminal-bench-1.0": f"{BASE}#terminal-bench-10-20",
+    "terminal-bench-2.0": f"{BASE}#terminal-bench-10-20",
     # SAFIM
-    "safim": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#safim",
+    "safim": f"{BASE}#safim",
     # ARC Challenge
-    "arc_challenge": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#arc-challenge",
+    "arc_challenge": f"{BASE}#arc-challenge",
     # HellaSwag
-    "hellaswag": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#hellaswag",
+    "hellaswag": f"{BASE}#hellaswag",
     # MMLU
-    "mmlu": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#mmlu",
-    "mmlu_pro_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#mmlu",
+    "mmlu": f"{BASE}#mmlu",
+    "mmlu_pro_cot": f"{BASE}#mmlu",
     # PIQA
-    "piqa": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#piqa",
+    "piqa": f"{BASE}#piqa",
     # Social IQA (siqa)
-    "siqa": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#social-iqa-siqa",
+    "siqa": f"{BASE}#social-iqa-siqa",
     # Natural Questions (nq)
-    "nq": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#natural-questions-nq",
+    "nq": f"{BASE}#natural-questions-nq",
     # TriviaWA (tqa)
-    "tqa": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#triviaqa-tqa",
+    "tqa": f"{BASE}#triviaqa-tqa",
     # GSM8K
-    "gsm8k": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#gsm8k",
-    "gsm8k_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#gsm8k",
-    "gsm8k_plus_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#gsm8k",
-    "mgsm_cot": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#gsm8k",
+    "gsm8k": f"{BASE}#gsm8k",
+    "gsm8k_cot": f"{BASE}#gsm8k",
+    "gsm8k_plus_cot": f"{BASE}#gsm8k",
+    "mgsm_cot": f"{BASE}#gsm8k",
     # AGIEval (English subset, agi_english)
-    "agi_english": "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md#agieval-english-subset-agi_english",
+    "agi_english": f"{BASE}#agieval-english-subset-agi_english",
     # AGIEval subsets
-    "ap_cot": "https://huggingface.co/datasets/baber/agieval",
+    # "ap_cot": "https://huggingface.co/datasets/baber/agieval",
     "gmat_cot": "https://huggingface.co/datasets/baber/agieval",
     "lsat_cot": "https://huggingface.co/datasets/baber/agieval",
     "gre_physics_cot": "https://huggingface.co/datasets/baber/agieval",
