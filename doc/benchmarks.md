@@ -132,3 +132,38 @@ The question level evaluation results is described under **eval results**. Some 
 - **Paper**: Joshi et al., "TriviaQA: A Large Scale Distantly Supervised Challenge Dataset for Reading Comprehension" ([arXiv:1705.03551](https://arxiv.org/abs/1705.03551)), ACL 2017
 - **Data**: [GitHub](https://github.com/mandarjoshi90/triviaqa) · [HuggingFace](https://huggingface.co/datasets/trivia_qa)
 - **Eval results**: ran by collaborators
+
+### MATH (`math_cot`)
+- **Size**: 5,000 questions
+- **Description**: Problems from mathematics competitions, including the AMC 10, AMC 12, AIME, and more.
+- **Paper**: Hendrycks et al., "Measuring Mathematical Problem Solving With the MATH Dataset" ([arXiv:2103.03874](https://arxiv.org/pdf/2103.03874)), NeurIPS 2021
+- **Data**: [GitHub](https://github.com/hendrycks/math) · [HuggingFace](https://huggingface.co/datasets/EleutherAI/hendrycks_math)
+- **Eval results**: ran by collaborators
+
+### MATH-500 (`math500_cot`)
+- **Size**: 500 questions
+- **Description**: Subset of 500 problems from the MATH benchmark that OpenAI created in their Let's Verify Step by Step paper.
+- **Paper**: Lightman et al., "Let's Verify Step by Step" ([arXiv:2305.20050](https://arxiv.org/pdf/2305.20050)), 2023
+- **Data**: [GitHub](https://github.com/openai/prm800k/tree/main?tab=readme-ov-file#math-splits) · [HuggingFace](https://huggingface.co/datasets/HuggingFaceH4/MATH-500)
+- **Eval results**: ran by collaborators
+
+### GPQA (`gpqa_cot`)
+- **Size**: 448 questions
+- **Description**: Multiple-choice questions written by domain experts in biology, physics, and chemistry.
+- **Paper**: Rein et al., "GPQA: A Graduate-Level Google-Proof Q&A Benchmark" ([arXiv:2311.12022](https://arxiv.org/pdf/2311.12022)), 2023
+- **Data**: [GitHub](https://github.com/idavidrein/gpqa) · [HuggingFace](https://huggingface.co/datasets/Idavidrein/gpqa)
+- **Eval results**: ran by collaborators
+  
+## BIG-Bench Hard (`bbh_cot`)
+- **Size**: 6,511 questions
+- **Description**: Subset of [Big-Bench](https://github.com/google/BIG-bench) tasks for which prior language model evaluations did not outperform the average human-rater.
+- **Paper**: Suzgun et al., "Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them" ([arXiv:2210.09261](https://arxiv.org/pdf/2210.09261)), 2022
+- **Data**: [GitHub](https://github.com/suzgunmirac/BIG-Bench-Hard) · [HuggingFace](https://huggingface.co/datasets/lukaemon/bbh)
+- **Eval results**: ran by collaborators
+
+## JEEBench (`jeebench_chat_cot`)
+- **Size**: 515 questions
+- **Description**: Challenging pre-engineering mathematics, physics and chemistry problems from the highly competitive IIT JEE-Advanced exam. Long-horizon reasoning on top of deep in-domain knowledge is essential for solving problems in this benchmark.
+- **Paper**: Arora et al., "Have LLMs Advanced Enough? A Challenging Problem Solving Benchmark For Large Language Models" ([ACL Anthology:2023.emnlp-main.468](https://aclanthology.org/2023.emnlp-main.468.pdf)), EMNLP 2023
+- **Data**: [HuggingFace](https://huggingface.co/datasets/daman1209arora/jeebench)
+- **Eval results**: ran by collaborators
