@@ -132,3 +132,17 @@ The question level evaluation results is described under **eval results**. Some 
 - **Paper**: Joshi et al., "TriviaQA: A Large Scale Distantly Supervised Challenge Dataset for Reading Comprehension" ([arXiv:1705.03551](https://arxiv.org/abs/1705.03551)), ACL 2017
 - **Data**: [GitHub](https://github.com/mandarjoshi90/triviaqa) · [HuggingFace](https://huggingface.co/datasets/trivia_qa)
 - **Eval results**: ran by collaborators
+
+### MATH (`math_cot`)
+- **Size**: 5,000 questions
+- **Description**: Problems from mathematics competitions, including the AMC 10, AMC 12, AIME, and more.
+- **Paper**: Hendrycks et al., "Measuring Mathematical Problem Solving With the MATH Dataset" ([arXiv:2103.03874](https://arxiv.org/pdf/2103.03874)), NeurIPS 2021
+- **Data**: [GitHub](https://github.com/hendrycks/math) · [HuggingFace](https://huggingface.co/datasets/EleutherAI/hendrycks_math)
+- **Eval results**: ran by collaborators
+
+### MATH-500 (`math500_cot`)
+- **Size**: 500 questions
+- **Description**: Subset of 500 problems from the MATH benchmark that OpenAI created in their Let's Verify Step by Step paper.
+- **Paper**: Lightman et al., "Let's Verify Step by Step" ([arXiv:2305.20050](https://arxiv.org/pdf/2305.20050)), 2023
+- **Data**: [GitHub](https://github.com/openai/prm800k/tree/main?tab=readme-ov-file#math-splits)[HuggingFace] · (https://huggingface.co/datasets/HuggingFaceH4/MATH-500)
+- **Eval results**: ran by collaborators
