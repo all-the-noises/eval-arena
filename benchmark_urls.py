@@ -64,16 +64,16 @@ BENCHMARK_DATASET_URLS = {
     "lsat_cot": "https://huggingface.co/datasets/baber/agieval",
     "gre_physics_cot": "https://huggingface.co/datasets/baber/agieval",
     # MATH
-    "math500_cot": "https://huggingface.co/datasets/HuggingFaceH4/MATH-500",
-    "math_cot": "https://huggingface.co/datasets/hendrycks/competition_math",
+    "math500_cot": f"{BASE}#math-500-math500_cot",
+    "math_cot": f"{BASE}#math-math_cot",
     # GPQA
-    "gpqa_cot": "https://huggingface.co/datasets/Idavidrein/gpqa",
+    "gpqa_cot": f"{BASE}#gpqa-gpqa_cot",
     # BIG-Bench Hard
-    "bbh_cot": "https://huggingface.co/datasets/lukaemon/bbh",
+    "bbh_cot": f"{BASE}#big-bench-hard-bbh_cot",
     # LeetCode
     "leetcode": "https://huggingface.co/datasets/greengerong/leetcode",
     # JEEBench
-    "jeebench_chat_cot": "https://huggingface.co/datasets/daman1209arora/jeebench",
+    "jeebench_chat_cot": f"{BASE}#jeebench-jeebench_chat_cot",
     # AIME
     "aime2024_cot": "https://huggingface.co/datasets/AI-MO/aimo-validation-aime",
     "aime2025_cot": "https://huggingface.co/datasets/AI-MO/aimo-validation-aime",
