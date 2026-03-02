@@ -144,5 +144,13 @@ The question level evaluation results is described under **eval results**. Some 
 - **Size**: 500 questions
 - **Description**: Subset of 500 problems from the MATH benchmark that OpenAI created in their Let's Verify Step by Step paper.
 - **Paper**: Lightman et al., "Let's Verify Step by Step" ([arXiv:2305.20050](https://arxiv.org/pdf/2305.20050)), 2023
-- **Data**: [GitHub](https://github.com/openai/prm800k/tree/main?tab=readme-ov-file#math-splits)[HuggingFace] · (https://huggingface.co/datasets/HuggingFaceH4/MATH-500)
+- **Data**: [GitHub](https://github.com/openai/prm800k/tree/main?tab=readme-ov-file#math-splits) · [HuggingFace](https://huggingface.co/datasets/HuggingFaceH4/MATH-500)
 - **Eval results**: ran by collaborators
+
+### GPQA (`gpqa_cot`)
+- **Size**: 448 questions
+- **Description**: Multiple-choice questions written by domain experts in biology, physics, and chemistry.
+- **Paper**: Rein et al., "GPQA: A Graduate-Level Google-Proof Q&A Benchmark" ([arXiv:2311.12022](https://arxiv.org/pdf/2311.12022)), 2023
+- **Data**: [GitHub](https://github.com/idavidrein/gpqa) · [HuggingFace](https://huggingface.co/datasets/Idavidrein/gpqa)
+- **Eval results**: ran by collaborators
+  
