@@ -1,4 +1,4 @@
-docbase = "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md"
+BASE = "https://github.com/all-the-noises/eval-arena/blob/main/doc/benchmarks.md"
 BENCHMARK_DATASET_URLS = {
     # CRUXEval
     "CRUXEval-input": f"{BASE}#cruxeval",
