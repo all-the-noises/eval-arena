@@ -4,11 +4,15 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import scipy.stats as stats
 
 from utils import pass_at_k
 
 logger = logging.getLogger(__name__)
+
+# default "plotly" template has a light blue plot background; use a white one instead
+pio.templates.default = "plotly_white"
 
 
 def _beta_est(mean, var):
@@ -23,6 +27,76 @@ def _beta_est(mean, var):
     if alpha_hat <= 0 or beta_hat <= 0:
         raise ValueError("Estimated parameters must be positive")
     return float(alpha_hat), float(beta_hat)
+
+
+def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.05):
+    df = df_summary.copy()
+
+    has_ok_perf = (df["accA"] > perf_thres) & (df["accB"] > perf_thres)
+    df = df[has_ok_perf & (df["model_a"] != df["model_b"])].copy()
+
+    df["|accA-accB|"] = (df["accA"] - df["accB"]).abs()
+
+    hover_data = df[["model_a", "accA", "model_b", "accB",
+                     "|accA-accB|", "SE(A-B)", "SE_x(A-B)", "pvalue", "corr(A,B)"]].values
+    figs = go.Figure()
+    figs.add_trace(go.Scatter(
+        x=df["|accA-accB|"],
+        y=df["SE(A-B)"],
+        mode="markers",
+        name="SE(A-B)",
+        customdata=hover_data,
+        marker=dict(symbol="x", color="blue"),
+    ))
+
+    figs.add_trace(go.Scatter(
+        x=df["|accA-accB|"],
+        y=df["SE_x(A-B)"],
+        mode="markers",
+        name="SE_x(A-B)",
+        customdata=hover_data,
+        marker=dict(symbol="circle", color="red"),
+        visible='legendonly', # hide series by default
+    ))
+
+    figs.update_traces(hovertemplate=
+        "<br>".join([
+        "Model A: %{customdata[0]} (acc: %{customdata[1]:.1%})",
+        "Model B: %{customdata[2]} (acc: %{customdata[3]:.1%})",
+        "|acc(A)-acc(B)|: %{customdata[4]:.2%}",
+        "SE(A-B): %{customdata[5]:.2%}",
+        "SE_x(A-B): %{customdata[6]:.2%}",
+        "p-value: %{customdata[7]:.3g}",
+        "corr(A,B): %{customdata[8]:.3g}",
+        ])  + "<extra></extra>")
+    figs.update_traces(
+        marker=dict(
+            size=3,
+            opacity=0.5,
+        )
+    )
+
+    # reference lines: the accuracy difference is z_{alpha/2} standard errors, i.e. SE = |diff| / z
+    maxx = df["|accA-accB|"].max()
+    x = np.linspace(0, maxx, 100)
+    refs = []
+    for alpha in [0.05, 0.1, 0.2]:
+        z = stats.norm.ppf(1 - alpha / 2)
+        refs.append(pd.DataFrame({"x": x, "y": x / z, "type": f"pvalue={alpha}"}))
+
+    df_ref = pd.concat(refs, axis=0)
+    figl = px.line(df_ref, x="x", y="y", color="type")
+    figl.update_layout(hovermode=False)
+
+    fig = go.Figure(data=figl.data + figs.data)
+    fig.update_layout(
+        width=800, height=600, title=bmname,
+        xaxis_title="|acc(A) - acc(B)|",
+        yaxis_title="SE(A-B)",
+        yaxis_range=[0, 1.05 * max(df["SE(A-B)"].max(), df["SE_x(A-B)"].max())],
+    )
+    return fig
+
 
 def fig_diff_vs_sum(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.05):
     df = df_summary.copy()
@@ -365,10 +439,23 @@ def fig_example_vs_model(result, all_stats, ex_table, use_acc_as_position=False,
         ]
 
     # df[yid] = df[yid].astype(str).str[:20]
+    # float32 halves the base64 payload. `count` must be cast too, or the int64
+    # column upcasts the whole customdata block back to float64.
+    df = df.astype({c: "float32" for c in
+                    ["pass1", "pass1_of_ex", "pass1_of_model", "count"]})
+
     fig = px.scatter(df, y=yid, x=xid, color="pass1",
                      opacity=0.75,
                      color_continuous_scale=emp_zero_scale,
-                     hover_data=["pass1", "pass1_of_ex", "pass1_of_model", "model", "example_id", "count"])
+                     hover_data={"pass1_of_ex": ":.3f",     # pass1 dropped: already
+                                 "pass1_of_model": ":.3f",  # shown via the color axis
+                                 "count": ":.0f"})          # keep it integer-looking
+
+    # px emits a bare "%{marker.color}" for the color variable; unformatted, a
+    # float32 0.55 renders as 0.550000011920929.
+    if fig.data:
+        fig.update_traces(hovertemplate=fig.data[0].hovertemplate.replace(
+            "%{marker.color}", "%{marker.color:.3f}"))
 
     fig.update_xaxes(autorange="reversed")
     show_yaxis = all(len(str(label)) <= 20 for label in df[yid].unique())

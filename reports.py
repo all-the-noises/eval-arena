@@ -18,6 +18,7 @@ from figures import (
     fig_example_vs_model,
     fig_marginals,
     fig_pass_at_k,
+    fig_se_vs_diff,
 )
 
 PLOTLY_CONFIGS = dict(full_html=False, include_plotlyjs="cdn")
@@ -79,6 +80,7 @@ def get_sections(res: ArenaResult, benchmark_id):
     sections = {
         "fig_accs_and_pvalues": fig_accs_and_pvalues(benchmark_id, summary).to_html(**PLOTLY_CONFIGS),
         "fig_diff_vs_sum": fig_diff_vs_sum(benchmark_id, summary).to_html(**PLOTLY_CONFIGS),
+        "fig_se_vs_diff": fig_se_vs_diff(benchmark_id, summary).to_html(**PLOTLY_CONFIGS),
         "fig_cov_baseline": fig_cov_baseline(benchmark_id, summary, res.input_table).to_html(**PLOTLY_CONFIGS),
         "fig_marginals": fig_marginals(benchmark_id, res.input_table, res.model_table, res.example_table, xkey="rank").to_html(**PLOTLY_CONFIGS),
         "fig_pass_at_k": fig_pass_at_k(benchmark_id, res.input_table).to_html(**PLOTLY_CONFIGS),
