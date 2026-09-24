@@ -29,19 +29,36 @@ def _beta_est(mean, var):
     return float(alpha_hat), float(beta_hat)
 
 
-def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.05):
+# hover annotations shared by the model pair figures
+_PAIR_HOVER_COLS = ["model_a", "model_b", "accA", "accB", "E(A-B)", "SE(A-B)", "SE_x(A-B)", "SE_pred(A-B)"]
+_PAIR_HOVERTEMPLATE = "<br>".join([
+    "Model A: %{customdata[0]}",
+    "Model B: %{customdata[1]}",
+    "E(A): %{customdata[2]:.1%}",
+    "E(B): %{customdata[3]:.1%}",
+    "E(A-B): %{customdata[4]:.2%}",
+    "SE(A-B): %{customdata[5]:.2%}",
+    "SE_x(A-B): %{customdata[6]:.2%}",
+    "SE_pred(A-B): %{customdata[7]:.2%}",
+    ]) + "<extra></extra>"
+
+
+def _pair_hover_data(df: pd.DataFrame):
+    return df.assign(**{"E(A-B)": df["accA"] - df["accB"]})[_PAIR_HOVER_COLS].values
+
+
+def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.05, alphas=[0.05]):
     df = df_summary.copy()
 
     has_ok_perf = (df["accA"] > perf_thres) & (df["accB"] > perf_thres)
     df = df[has_ok_perf & (df["model_a"] != df["model_b"])].copy()
 
-    df["|accA-accB|"] = (df["accA"] - df["accB"]).abs()
+    df["|E(A-B)|"] = (df["accA"] - df["accB"]).abs()
 
-    hover_data = df[["model_a", "accA", "model_b", "accB",
-                     "|accA-accB|", "SE(A-B)", "SE_x(A-B)", "pvalue", "corr(A,B)"]].values
+    hover_data = _pair_hover_data(df)
     figs = go.Figure()
     figs.add_trace(go.Scatter(
-        x=df["|accA-accB|"],
+        x=df["|E(A-B)|"],
         y=df["SE(A-B)"],
         mode="markers",
         name="SE(A-B)",
@@ -50,7 +67,7 @@ def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.
     ))
 
     figs.add_trace(go.Scatter(
-        x=df["|accA-accB|"],
+        x=df["|E(A-B)|"],
         y=df["SE_x(A-B)"],
         mode="markers",
         name="SE_x(A-B)",
@@ -59,16 +76,7 @@ def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.
         visible='legendonly', # hide series by default
     ))
 
-    figs.update_traces(hovertemplate=
-        "<br>".join([
-        "Model A: %{customdata[0]} (acc: %{customdata[1]:.1%})",
-        "Model B: %{customdata[2]} (acc: %{customdata[3]:.1%})",
-        "|acc(A)-acc(B)|: %{customdata[4]:.2%}",
-        "SE(A-B): %{customdata[5]:.2%}",
-        "SE_x(A-B): %{customdata[6]:.2%}",
-        "p-value: %{customdata[7]:.3g}",
-        "corr(A,B): %{customdata[8]:.3g}",
-        ])  + "<extra></extra>")
+    figs.update_traces(hovertemplate=_PAIR_HOVERTEMPLATE)
     figs.update_traces(
         marker=dict(
             size=3,
@@ -77,96 +85,38 @@ def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.
     )
 
     # reference lines: the accuracy difference is z_{alpha/2} standard errors, i.e. SE = |diff| / z
-    maxx = df["|accA-accB|"].max()
+    maxx = df["|E(A-B)|"].max()
     x = np.linspace(0, maxx, 100)
     refs = []
-    for alpha in [0.05, 0.1, 0.2]:
+    for alpha in alphas:
         z = stats.norm.ppf(1 - alpha / 2)
         refs.append(pd.DataFrame({"x": x, "y": x / z, "type": f"pvalue={alpha}"}))
 
     df_ref = pd.concat(refs, axis=0)
     figl = px.line(df_ref, x="x", y="y", color="type")
+    figl.update_traces(line=dict(color="black", dash="dash"))
     figl.update_layout(hovermode=False)
 
     fig = go.Figure(data=figl.data + figs.data)
     fig.update_layout(
         width=800, height=600, title=bmname,
-        xaxis_title="|acc(A) - acc(B)|",
+        xaxis_title="|E(A-B)|",
         yaxis_title="SE(A-B)",
         yaxis_range=[0, 1.05 * max(df["SE(A-B)"].max(), df["SE_x(A-B)"].max())],
     )
     return fig
 
 
-def fig_diff_vs_sum(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.05):
-    df = df_summary.copy()
-    data_sz = df.iloc[0]["total"]
-
-    has_ok_perf = (df["accA"] > perf_thres) & (df["accB"] > perf_thres)
-    df = df[has_ok_perf]
-
-
-    figs = px.scatter(df, x=df["sum(A-B)"].abs(), y="sum(A!=B)",
-                      custom_data=["model_a", "model_b", "sum(A!=B)", "sum(A-B)", "pvalue", "SE(A-B)", "accA", "accB", "SE_x(A-B)", "corr(A,B)"])
-    figs.update_traces(hovertemplate=
-        "<br>".join([
-        "Model A: %{customdata[0]} (acc: %{customdata[6]:.1%})",
-        "Model B: %{customdata[1]} (acc: %{customdata[7]:.1%})",
-        "total A≠B: %{customdata[2]}",
-        "total A-B: %{customdata[3]}",
-        "SE(A-B): %{customdata[5]:.4%}",
-        "SE_x[A-B]: %{customdata[8]:.4%}",
-        "p-value: %{customdata[4]:.3g}",
-        "corr(A,B): %{customdata[9]:.3g}",
-        ])  + "<extra></extra>")
-    figs.update_traces(
-        marker=dict(
-            size=3,
-            opacity=0.5,
-        )
-    )
-
-    maxy = df["sum(A!=B)"].max()
-    refs = []
-    x = np.linspace(0, data_sz / 2, 100)
-    refs.append(pd.DataFrame({"x": x, "y": x, "type": "x=y"}))
-    for alpha in [0.05, 0.1, 0.2]:
-        thres = stats.chi2.ppf(1-alpha, 1)
-        y = np.linspace(1, maxy, 200)
-        refs.append(pd.DataFrame({"x": 1 + np.sqrt(y * thres), "y": y, "type": f"pvalue={alpha}"}))
-
-    df_ref = pd.concat(refs, axis=0)
-    figl = px.line(df_ref, x="x", y="y", color="type")
-    figl.update_layout(hovermode=False)
-
-    fig = go.Figure(data=figl.data + figs.data)
-    fig.update_layout(
-        width=800, height=600, title=bmname,
-        xaxis_title="|#A_win - #B_win|",
-        yaxis_title="#A_win + #B_win"
-    )
-    return fig
-
-
 def fig_accs_and_pvalues(bmname, diffvsum):
     figs = px.scatter(diffvsum, x="accA", y="accB",
-            color="pvalue", range_color=[0, 0.2],
-            custom_data=["model_a", "model_b", "accA", "accB", "pvalue", "SE(A-B)"])
-    figs.update_traces(hovertemplate=
-        "<br>".join([
-        "Model A: %{customdata[0]}",
-        "Model B: %{customdata[1]}",
-        "acc(A): %{customdata[2]:.1%}",
-        "acc(B): %{customdata[3]:.1%}",
-        "p-value: %{customdata[4]:.3g}",
-        "SE(A-B)%: %{customdata[5]:.2%}",
-        ])  + "<extra></extra>")
+            color="pvalue", range_color=[0, 0.2])
+    figs.update_traces(customdata=_pair_hover_data(diffvsum), hovertemplate=_PAIR_HOVERTEMPLATE)
 
     figs.update_layout(
         width=800, height=800,
         title=bmname,
-        xaxis_title="acc(Model A)",
-        yaxis_title="acc(Model B)",
+        xaxis_title="E(A)",
+        yaxis_title="E(B)",
         legend_title="p_value",
     )
     return figs
@@ -188,7 +138,7 @@ def fig_cov_baseline(bmname: str, df_summary: pd.DataFrame, input_table: pd.Data
     df["type"] = df.apply(label_fun, axis=1)
 
     df = df[df["type"] == CLOSE]
-    hover_data = df[["model_a", "model_b", "accA", "accB", "SE(A-B)", "SE_x(A-B)", "SE_pred(A-B)"]].values
+    hover_data = _pair_hover_data(df)
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df["accA"],
@@ -222,14 +172,7 @@ def fig_cov_baseline(bmname: str, df_summary: pd.DataFrame, input_table: pd.Data
     # fig.for_each_trace(lambda trace: trace.update(opacity=0.75)
     #                if trace.name == NOT_CLOSE else None)
 
-    fig.update_traces(hovertemplate=
-        "<br>".join([
-        "Model A: %{customdata[0]} (acc: %{customdata[2]:.1%})",
-        "Model B: %{customdata[1]} (acc: %{customdata[3]:.1%})",
-        "SE(A-B): %{customdata[4]:.2%}",
-        "SE_x(A-B): %{customdata[5]:.2%}",
-        "SE_pred(A-B): %{customdata[6]:.2%}",
-        ])  + "<extra></extra>")
+    fig.update_traces(hovertemplate=_PAIR_HOVERTEMPLATE)
 
     fig.update_traces(
         marker=dict(

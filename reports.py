@@ -14,7 +14,6 @@ from benchmark_urls import BENCHMARK_DATASET_URLS
 from figures import (
     fig_accs_and_pvalues,
     fig_cov_baseline,
-    fig_diff_vs_sum,
     fig_example_vs_model,
     fig_marginals,
     fig_pass_at_k,
@@ -79,7 +78,6 @@ def get_sections(res: ArenaResult, benchmark_id):
 
     sections = {
         "fig_accs_and_pvalues": fig_accs_and_pvalues(benchmark_id, summary).to_html(**PLOTLY_CONFIGS),
-        "fig_diff_vs_sum": fig_diff_vs_sum(benchmark_id, summary).to_html(**PLOTLY_CONFIGS),
         "fig_se_vs_diff": fig_se_vs_diff(benchmark_id, summary).to_html(**PLOTLY_CONFIGS),
         "fig_cov_baseline": fig_cov_baseline(benchmark_id, summary, res.input_table).to_html(**PLOTLY_CONFIGS),
         "fig_marginals": fig_marginals(benchmark_id, res.input_table, res.model_table, res.example_table, xkey="rank").to_html(**PLOTLY_CONFIGS),
@@ -124,7 +122,6 @@ def get_example_level_results(benchmark_id, ares: ArenaResult):
     outputs["table_suspect"] = list_suspect[["example_link", "pass1_of_ex", "tau"]].to_html(escape=False, classes="number-table", float_format="%10.3f", index=False)
     logger.info(f"{benchmark_id} anti-correlated prop: {np.mean(ex_table['tau'] <= 0):.3f}")
 
-    outputs["fig_example_vs_model"] = fig_example_vs_model(ares.input_table, all_stats, ex_table)
     outputs["fig_example_vs_model_acc"] = fig_example_vs_model(ares.input_table, all_stats, ex_table, use_acc_as_position=True)
     return outputs
 
@@ -294,8 +291,5 @@ def write_example_report(benchmark_id: str, ares: ArenaResult, OUTPUT_PATH):
             output_file.write(j2_template.render({"benchmark_id": benchmark_id, "outputs": outputs}))
 
     plotly_configs = dict(full_html=False, include_plotlyjs="cdn")
-    with open(f"{OUTPUT_PATH}/ex_v_model.html", "wt") as f:
-        f.write(outputs["fig_example_vs_model"].to_html(**plotly_configs))
-
     with open(f"{OUTPUT_PATH}/ex_v_model_acc.html", "wt") as f:
         f.write(outputs["fig_example_vs_model_acc"].to_html(**plotly_configs))
