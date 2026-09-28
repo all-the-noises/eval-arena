@@ -30,7 +30,7 @@ def _beta_est(mean, var):
 
 
 # hover annotations shared by the model pair figures
-_PAIR_HOVER_COLS = ["model_a", "model_b", "accA", "accB", "E(A-B)", "SE(A-B)", "SE_x(A-B)", "SE_pred(A-B)"]
+_PAIR_HOVER_COLS = ["model_a", "model_b", "E(A)", "E(B)", "E(A-B)", "SE(A-B)", "SE_x(A-B)", "SE_pred(A-B)"]
 _PAIR_HOVERTEMPLATE = "<br>".join([
     "Model A: %{customdata[0]}",
     "Model B: %{customdata[1]}",
@@ -44,16 +44,16 @@ _PAIR_HOVERTEMPLATE = "<br>".join([
 
 
 def _pair_hover_data(df: pd.DataFrame):
-    return df.assign(**{"E(A-B)": df["accA"] - df["accB"]})[_PAIR_HOVER_COLS].values
+    return df.assign(**{"E(A-B)": df["E(A)"] - df["E(B)"]})[_PAIR_HOVER_COLS].values
 
 
 def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.05, alphas=[0.05]):
     df = df_summary.copy()
 
-    has_ok_perf = (df["accA"] > perf_thres) & (df["accB"] > perf_thres)
+    has_ok_perf = (df["E(A)"] > perf_thres) & (df["E(B)"] > perf_thres)
     df = df[has_ok_perf & (df["model_a"] != df["model_b"])].copy()
 
-    df["|E(A-B)|"] = (df["accA"] - df["accB"]).abs()
+    df["|E(A-B)|"] = (df["E(A)"] - df["E(B)"]).abs()
 
     hover_data = _pair_hover_data(df)
     figs = go.Figure()
@@ -108,7 +108,7 @@ def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.
 
 
 def fig_accs_and_pvalues(bmname, diffvsum):
-    figs = px.scatter(diffvsum, x="accA", y="accB",
+    figs = px.scatter(diffvsum, x="E(A)", y="E(B)",
             color="pvalue", range_color=[0, 0.2])
     figs.update_traces(customdata=_pair_hover_data(diffvsum), hovertemplate=_PAIR_HOVERTEMPLATE)
 
@@ -130,7 +130,7 @@ def fig_cov_baseline(bmname: str, df_summary: pd.DataFrame, input_table: pd.Data
     def label_fun(r):
         if r["model_a"] == r["model_b"]:
             return SAME_MODEL
-        elif np.abs(r["accA"] - r["accB"]) / (r["SE(A-B)"] + 1e-10) <= sigma_thres:
+        elif np.abs(r["E(A)"] - r["E(B)"]) / (r["SE(A-B)"] + 1e-10) <= sigma_thres:
             return CLOSE
         else:
             return NOT_CLOSE
@@ -141,7 +141,7 @@ def fig_cov_baseline(bmname: str, df_summary: pd.DataFrame, input_table: pd.Data
     hover_data = _pair_hover_data(df)
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df["accA"],
+        x=df["E(A)"],
         y=df["SE(A-B)"],
         mode="markers",
         name="SE(A-B)",
@@ -150,7 +150,7 @@ def fig_cov_baseline(bmname: str, df_summary: pd.DataFrame, input_table: pd.Data
     ))
 
     fig.add_trace(go.Scatter(
-        x=df["accA"],
+        x=df["E(A)"],
         y=df["SE_x(A-B)"],
         mode="markers",
         name="SE_x(A-B)",
@@ -158,19 +158,6 @@ def fig_cov_baseline(bmname: str, df_summary: pd.DataFrame, input_table: pd.Data
         marker=dict(size=3, symbol="circle", color="red", opacity=0.8),
         visible='legendonly', # hide series by default
     ))
-
-    fig.add_trace(go.Scatter(
-        x=df["accA"],
-        y=df["SE_pred(A-B)"],
-        mode="markers",
-        name="SE_pred(A-B)",
-        customdata=hover_data,
-        marker=dict(size=3, symbol="square", color="green", opacity=0.8),
-        visible='legendonly', # hide series by default
-    ))
-
-    # fig.for_each_trace(lambda trace: trace.update(opacity=0.75)
-    #                if trace.name == NOT_CLOSE else None)
 
     fig.update_traces(hovertemplate=_PAIR_HOVERTEMPLATE)
 

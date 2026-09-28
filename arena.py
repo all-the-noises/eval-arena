@@ -91,12 +91,11 @@ class BattleSummary:
         assert np.allclose(df["pass1_a"] - df["pass1_b"], awin - bwin)
         r = {
             "total": N,
-            "accA": df["pass1_a"].mean(),
-            "accB": df["pass1_b"].mean(),
+            "E(A)": df["pass1_a"].mean(),
+            "E(B)": df["pass1_b"].mean(),
             "sum(A!=B)": awin.sum() + bwin.sum(),
             "sum(A-B)": awin.sum() - bwin.sum(),
             "SE_signtest": np.sqrt(1/N * (awin + bwin).mean()),
-            "pvalue": stats.binomtest(int(awin.sum()), int(awin.sum() + bwin.sum()), p=0.5).pvalue if int(awin.sum() + bwin.sum()) != 0 else 1,
 
             "SE_pred(A-B)": np.sqrt(1/N * vars["E(var(A-B))"]),
             "SE_x(A-B)": np.sqrt(1/N * vars["var(E(A-B))"]),
@@ -104,6 +103,14 @@ class BattleSummary:
 
             "corr(A,B)": df["pass1_a"].corr(df["pass1_b"], method="pearson"),
         }
+
+        # sign test on the wins, and z and t tests (N-1 degrees of freedom) on |E(A-B)| / SE(A-B)
+        nwins = int(awin.sum() + bwin.sum())
+        r["pvalue"] = stats.binomtest(int(awin.sum()), nwins, p=0.5).pvalue if nwins != 0 else 1
+        absdiff, se = abs(r["E(A)"] - r["E(B)"]), r["SE(A-B)"]
+        tstat = absdiff / se if se > 0 else (0 if np.isclose(absdiff, 0) else np.inf)
+        r["pvalue_z"] = 2 * stats.norm.sf(tstat)
+        r["pvalue_t"] = 2 * stats.t.sf(tstat, df=N - 1)
         assert r["SE(A-B)"] <= r["SE_signtest"] or np.allclose(r["SE(A-B)"], r["SE_signtest"])
         return pd.Series(r)
 
@@ -182,7 +189,7 @@ def summarize_benchmark(df_input: pd.DataFrame, args: ReportArgs) -> ArenaResult
 
     close_pairs = summary[
         (summary["pvalue"] > 2 * stats.norm.sf(abs(args.sigma_thres))) &  # p=0.05, 0.0027, 6e-7  for 1.96, 3, 5 sigma
-        (summary["accA"] > args.min_perf) & (summary["accB"] > args.min_perf)
+        (summary["E(A)"] > args.min_perf) & (summary["E(B)"] > args.min_perf)
     ]
 
     summary_stats = {
