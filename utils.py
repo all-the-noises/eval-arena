@@ -38,7 +38,7 @@ def fill_count(df) -> pd.DataFrame:
     df = df.copy()
     if "count" not in df:
         logger.info(f"no count at all, assuming 1")
-        df.loc["count"] = 1
+        df["count"] = 1
         return df
     for benchmark_id in df['benchmark_id'].unique():
         benchmark_df = df[df['benchmark_id'] == benchmark_id]
