@@ -6,8 +6,10 @@ Ported from cell 8 of notebooks/process_internal.ipynb (branch internal_process_
 which follows the same conventions as the hf_models processing.
 
 Usage:
-    python scripts/process_seed_models.py [raw_dir] [out_dir]
+    python scripts/process_seed_models.py [raw_dir] [out_dir] [steps]
     # defaults: raw-data/seed_models/*.csv -> data/seed_models/<benchmark>.jsonl
+    # steps: optional comma-separated ckpt_steps to keep, e.g. 50000 or 12500,25000,37500,50000
+    # (all 210 models = 10 seeds x 21 ckpts is too big for arena's pairwise merge)
 """
 
 import glob
@@ -19,10 +21,13 @@ import pandas as pd
 
 RAW_DIR = sys.argv[1] if len(sys.argv) > 1 else "raw-data/seed_models"
 OUT_DIR = sys.argv[2] if len(sys.argv) > 2 else "data/seed_models"
+STEPS = [int(x) for x in sys.argv[3].split(",")] if len(sys.argv) > 3 else None
 
 
 def process(path: str) -> tuple[str, pd.DataFrame]:
     dfi = pd.read_csv(path)
+    if STEPS is not None:
+        dfi = dfi[dfi["ckpt_step"].isin(STEPS)]
     bid = bprefix = set(dfi["benchmark"]).pop()
     if bid == "human_eval":  # consistency with the other humaneval data
         bid = "humaneval"
