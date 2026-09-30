@@ -18,8 +18,8 @@ echo "Argument 1: $NAME"
 
 # raw-data/seed_models/*.csv -> data/seed_*/*.jsonl
 # all 210 models (10 seeds x 21 ckpts) is too big for the pairwise merge in arena, so subsample ckpts
-python -u scripts/process_seed_models.py raw-data/seed_models data/seed_final 50000
-python -u scripts/process_seed_models.py raw-data/seed_models data/seed_4ckpt 12500,25000,37500,50000
+python -u scripts/process_seed_models.py --out_dir data/seed_final --steps 50000
+python -u scripts/process_seed_models.py --out_dir data/seed_4ckpt --steps 12500,25000,37500,50000
 
 python -u run_arena.py data="data/seed_final/*.jsonl" \
     out_dir=${OUTPATH}/${NAME}/seed_final \
