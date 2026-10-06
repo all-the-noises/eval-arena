@@ -47,11 +47,9 @@ def _pair_hover_data(df: pd.DataFrame):
     return df.assign(**{"E(A-B)": df["E(A)"] - df["E(B)"]})[_PAIR_HOVER_COLS].values
 
 
-def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, perf_thres: float = 0.05, alphas=[0.05]):
+def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, alphas=[0.05]):
     df = df_summary.copy()
-
-    has_ok_perf = (df["E(A)"] > perf_thres) & (df["E(B)"] > perf_thres)
-    df = df[has_ok_perf & (df["model_a"] != df["model_b"])].copy()
+    df = df[df["model_a"] != df["model_b"]].copy()
 
     df["|E(A-B)|"] = (df["E(A)"] - df["E(B)"]).abs()
 
