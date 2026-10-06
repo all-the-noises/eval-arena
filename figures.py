@@ -47,7 +47,8 @@ def _pair_hover_data(df: pd.DataFrame):
     return df.assign(**{"E(A-B)": df["E(A)"] - df["E(B)"]})[_PAIR_HOVER_COLS].values
 
 
-def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, alphas=[0.05]):
+def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame,
+                   alphas={0.05: dict(color="black", dash="dash"), 0.001: dict(color="grey", dash="dashdot")}):
     df = df_summary.copy()
     df = df[df["E(A)"] > df["E(B)"]].copy()  # each pair once, also excludes same model
 
@@ -92,7 +93,8 @@ def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, alphas=[0.05]):
 
     df_ref = pd.concat(refs, axis=0)
     figl = px.line(df_ref, x="x", y="y", color="type")
-    figl.update_traces(line=dict(color="black", dash="dash"))
+    for alpha, line in alphas.items():
+        figl.update_traces(line=line, selector=dict(name=f"pvalue={alpha}"))
     figl.update_layout(hovermode=False)
 
     fig = go.Figure(data=figl.data + figs.data)
