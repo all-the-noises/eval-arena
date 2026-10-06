@@ -32,6 +32,8 @@ def _summary_stats(s, f=2, percent=True):
     return f"""{s["mean"]:.2g}±{s["std"]:.2g} | [{s["min"]:.2g}--{s["max"]:.2g}] | n={int(s["count"])}"""
 
 def _format_stats_badge(s):
+    # NaN stats (e.g. std with n=1) come back as None when loaded from summary_stats.jsonl
+    s = {k: np.nan if v is None else v for k, v in s.items()}
     s_percent = dict(s)
     for st in ["mean", "std", "min", "max"]:
         if s["count"] != 0:
