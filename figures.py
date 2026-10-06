@@ -49,7 +49,7 @@ def _pair_hover_data(df: pd.DataFrame):
 
 def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, alphas=[0.05]):
     df = df_summary.copy()
-    df = df[df["model_a"] != df["model_b"]].copy()
+    df = df[df["E(A)"] > df["E(B)"]].copy()  # each pair once, also excludes same model
 
     df["|E(A-B)|"] = (df["E(A)"] - df["E(B)"]).abs()
 
