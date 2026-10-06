@@ -47,8 +47,7 @@ def _pair_hover_data(df: pd.DataFrame):
     return df.assign(**{"E(A-B)": df["E(A)"] - df["E(B)"]})[_PAIR_HOVER_COLS].values
 
 
-def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame,
-                   alphas={0.05: dict(color="black", dash="dash"), 0.001: dict(color="grey", dash="dashdot")}):
+def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame, alphas=[0.05, 0.001]):
     df = df_summary.copy()
     df = df[df["E(A)"] > df["E(B)"]].copy()  # each pair once, also excludes same model
 
@@ -93,8 +92,10 @@ def fig_se_vs_diff(bmname: str, df_summary: pd.DataFrame,
 
     df_ref = pd.concat(refs, axis=0)
     figl = px.line(df_ref, x="x", y="y", color="type")
-    for alpha, line in alphas.items():
-        figl.update_traces(line=line, selector=dict(name=f"pvalue={alpha}"))
+    # greyscale with distinct dashes, to stay separate from the blue/red markers
+    line_styles = [("black", "dash"), ("grey", "dashdot"), ("darkgrey", "dot")]
+    for alpha, (color, dash) in zip(alphas, line_styles):
+        figl.update_traces(line=dict(color=color, dash=dash), selector=dict(name=f"pvalue={alpha}"))
     figl.update_layout(hovermode=False)
 
     fig = go.Figure(data=figl.data + figs.data)
