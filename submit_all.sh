@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --time=2:00:00
-#SBATCH --ntasks=5
+#SBATCH --ntasks=6
 #SBATCH --gpus-per-node 0
 #SBATCH --cpus-per-task 12
 #SBATCH --job-name=eval_arena
@@ -38,5 +38,12 @@ srun --ntasks=1 --cpus-per-task=8 --exclusive \
     python -u run_arena.py data="data/train_curve/*.jsonl" \
     out_dir=${OUTPATH}/${NAME}/train_curve \
     max_diff=0.2 recompute=True &
+
+# training seeds: compare the 10 seeds at the first, middle and last ckpt steps
+srun --ntasks=1 --cpus-per-task=8 --exclusive bash -c "\
+    python -u scripts/process_seed_models.py --out_dir data/training_seeds --by_step --steps 2500,27500,50000 && \
+    python -u run_arena.py data='data/training_seeds/*.jsonl' \
+    out_dir=${OUTPATH}/${NAME}/training_seeds \
+    max_diff=0.1 recompute=True include_var_components=False" &
 
 wait
