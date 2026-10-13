@@ -67,7 +67,9 @@ The datasets used to produce the results is in [this release](https://github.com
 
 This data is visualized by [heatmaps](https://all-the-noises.github.io/highk_temp0.7/math500_cot/ex_v_model_acc.html), accessible through the "data" link of each eval from the [main table](https://all-the-noises.github.io/). All raw data files and figures can be accessed through the "raw" link, which points to each benchmark's `raw_index.html`.
 
-## 📝 Citation
+## 📝 Citations
+
+For the noise decomposition, estimators, and related findings:
 
 ```bibtex
 @misc{wang2025allthenoises,
@@ -78,6 +80,19 @@ This data is visualized by [heatmaps](https://all-the-noises.github.io/highk_tem
       archivePrefix={arXiv},
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2512.21326},
+}
+```
+
+For the data, signal-to-noise and errors
+
+```bibtex
+@misc{evalarena,
+  title = {{E}val-{A}rena: noise and errors on LLM evaluations},
+  author = {Sida I. Wang and Alex Gu and Lovish Madaan and Dieuwke Hupkes and Jiawei Liu and Yuxiang Wei and Naman Jain and Yuhang Lai and Sten Sootla and Ofir Press and Baptiste Rozière and Gabriel Synnaeve},
+  year = {2024},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/all-the-noises/eval-arena}}
 }
 ```
 <!-- For the data, cite [eval-arena](doc/eval-arena-readme.md#contributors-and-citation). -->
