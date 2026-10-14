@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 # Helper Functions
 # =============================================================================
 
-def _summary_stats(s, f=2, percent=True):
+def _summary_stats(s):
     if s["count"] == 0:
         return "n=0"
     return f"""{s["mean"]:.2g}±{s["std"]:.2g} | [{s["min"]:.2g}--{s["max"]:.2g}] | n={int(s["count"])}"""
@@ -34,13 +34,9 @@ def _summary_stats(s, f=2, percent=True):
 def _format_stats_badge(s):
     # NaN stats (e.g. std with n=1) come back as None when loaded from summary_stats.jsonl
     s = {k: np.nan if v is None else v for k, v in s.items()}
-    s_percent = dict(s)
-    for st in ["mean", "std", "min", "max"]:
-        if s["count"] != 0:
-            s_percent[st] = 100 * s[st]
-    summary = _summary_stats(s)
-    mean = s["mean"]
-    mean_str = "N/A" if mean is None else f"{100*mean:.2g}"
+    s_percent = {k: 100 * v if k in ["mean", "std", "min", "max"] else v for k, v in s.items()}
+    summary = _summary_stats(s_percent)
+    mean_str = "N/A" if pd.isna(s["mean"]) else f"{s_percent['mean']:.2g}"
     return f"""<span class="tooltip" data-tooltip="{summary}">{mean_str}</span>"""
 
 def _get_benchmark_link(benchmark_id: str) -> str:
